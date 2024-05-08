@@ -1,32 +1,40 @@
 import { test, expect } from 'vitest';
-import { parseTaxonomy, parseFeatureTable, mergeMetadata } from './src/util/parse.js';
+import {
+    parseTaxonomy, parseFeatureTable, mergeMetadata
+} from './src/util/parse.js';
+
 
 test('parse taxonomy', async () => {
     const mockedReadFunc = async (taxonomyFile) => {
         return [
-            {'Feature ID': '1', Taxon: 'a__1;b__3;c__4', Confidence: '0.9'},
-            {'Feature ID': '2', Taxon: 'a__1;b__3;c__5', Confidence: '0.9'},
-            {'Feature ID': '3', Taxon: 'a__2;b__3;c__6', Confidence: '0.9'},
+            {'Feature ID': '1', Taxon: 'a1;b1;c1', Confidence: '0.9'},
+            {'Feature ID': '2', Taxon: 'a1;b1;c2', Confidence: '0.9'},
+            {'Feature ID': '3', Taxon: 'a2;b2;c3', Confidence: '0.9'},
         ];
     };
 
     const exp = [
-        {id: 'a__1', name: 'a__1', parent: null, level: 1, viewLevel: 1},
-        {id: 'a__1;b__3', name: 'b__3', parent: 'a__1', level: 2, viewLevel: 2},
-        {id: 'a__1;b__3;c__4', name: 'c__4', parent: 'a__1;b__3', level: 3,
-         viewLevel: 3},
-        {id: 'a__1;b__3;c__5', name: 'c__5', parent: 'a__1;b__3', level: 3,
-         viewLevel: 3},
-        {id: 'a__2', name: 'a__2', parent: null, level: 1, viewLevel: 1},
-        {id: 'a__2;b__3', name: 'b__3', parent: 'a__2', level: 2, viewLevel: 2},
-        {id: 'a__2;b__3;c__6', name: 'c__6', parent: 'a__2;b__3', level: 3,
-         viewLevel: 3},
+        {id: 'a1', name: 'a1', parent: null, level: 1, group: false,
+         expand: false},
+        {id: 'a1;b1', name: 'b1', parent: 'a1', level: 2, group: false,
+         expand: false},
+        {id: 'a1;b1;c1', name: 'c1', parent: 'a1;b1', level: 3, group: false,
+         expand: false},
+        {id: 'a1;b1;c2', name: 'c2', parent: 'a1;b1', level: 3, group: false,
+         expand: false},
+        {id: 'a2', name: 'a2', parent: null, level: 1, group: false,
+         expand: false},
+        {id: 'a2;b2', name: 'b2', parent: 'a2', level: 2, group: false,
+         expand: false},
+        {id: 'a2;b2;c3', name: 'c3', parent: 'a2;b2', level: 3, group: false,
+         expand: false},
     ];
 
     const obs = await parseTaxonomy('taxonomy.tsv', mockedReadFunc);
 
     expect(exp).toEqual(obs);
 });
+
 
 test('parse feature table', async () => {
     const mockedReadFunc = async (tableFile) => {

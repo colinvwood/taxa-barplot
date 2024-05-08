@@ -17,7 +17,7 @@ import * as d3 from 'd3-fetch';
  * @param {String} sampleId - name of the column that identifies the sample
  * @param {Function} readFunc - function used to parse the feature table
  *
- * @returns {Promise<Array<object>>} - array of sample objects
+ * @returns {Promise<Array<Object>>} - array of sample objects
  */
 export async function parseFeatureTable(
     tableFile, sampleId, readFunc = d3.csv
@@ -47,7 +47,8 @@ export async function parseFeatureTable(
  *         name: 'c__Bacilli',
  *         parent: 'd__Bacteria;p__Bacilota',
  *         level: 3,
- *         viewLevel: 0
+ *         group: false,
+ *         expand: false
  *     }
  *
  * @param {String} taxonomyFile - filepath of the taxonomy file
@@ -56,7 +57,7 @@ export async function parseFeatureTable(
  * @param {String} delimiter=; - the character delimiting the taxonomic levels
  * within the taxon strings in the taxonomy file
  *
- * @returns {Promise<Array<object>>} - array of taxon objects
+ * @returns {Promise<Array<Object>>} - array of taxon objects
  */
 export async function parseTaxonomy(
     taxonomyFile, readFunc = d3.tsv, delimiter = ';'
@@ -86,7 +87,8 @@ export async function parseTaxonomy(
                     name,
                     parent,
                     level: i + 1,
-                    viewLevel: i + 1
+                    group: false,
+                    expand: false
                 });
             }
         }
@@ -102,7 +104,7 @@ export async function parseTaxonomy(
  * @param {Function} readFunc - function used to parse the metadata file,
  * expected to return an array of row objects
  *
- * @returns {Promise<Array<object>>} - array of sample objects
+ * @returns {Promise<Array<Object>>} - array of sample objects
  */
 export async function parseMetadata(metadataFile, readFunc = d3.csv) {
     const metadata = await readFunc(metadataFile);
@@ -114,10 +116,10 @@ export async function parseMetadata(metadataFile, readFunc = d3.csv) {
 /**
  * Merge the metadata with the per sample taxon objects.
  *
- * @param {Array<object>} table -
- * @param {Array<object>} metadata -
+ * @param {Array<Object>} table -
+ * @param {Array<Object>} metadata -
  *
- * @returns {Array<object>} -
+ * @returns {Array<Object>} -
  */
 export function mergeMetadata(table, metadata) {
     for (let sample of table) {
