@@ -43,35 +43,21 @@ export function getTaxaBeneathLevel(taxonomy, level) {
 }
 
 /**
- * Return the taxon with id `taxonId`.
- *
- * @param {Array<Object>} taxonomy - the taxonomy to search
- * @param {String} taxonId - the id of the taxon of interest
- *
- * @returns {Promise<Object|null>} - the taxon with id `taxonId` or null if no
- * match was found
- */
-export async function getTaxonById(taxonomy, taxonId) {
-    for (let taxon of taxonomy) {
-        if (taxon.id == taxonId) {
-            return taxon;
-        }
-    }
-
-    return null;
-}
-
-/**
  * Return the parent taxon of `taxon`.
  *
  * @param {Array<Object>} taxonomy - the taxonomy to search
  * @param {Object} taxon - the taxon of which to find the parent
  *
- * @returns {Promise<Object|null} - the parent of taxon `taxon` or null if not
+ * @returns {Object|null} - the parent of taxon `taxon` or null if not
  * found
  */
-export async function getParent(taxonomy, taxon) {
-    return getTaxonById(taxonomy, taxon.parent);
+export function getParent(taxonomy, taxon) {
+    for (let otherTaxon of taxonomy) {
+        if (otherTaxon.id == taxon.parent) {
+           return otherTaxon;
+        }
+    }
+    return null;
 }
 
 
@@ -82,13 +68,13 @@ export async function getParent(taxonomy, taxon) {
  * @param {Array<Object>} taxonomy - the taxonomy to search
  * @param {Object} taxon - the taxon of which to find the siblings
  *
- * @returns {Promise<Array<Object>>} - the sibling taxa, if any
+ * @returns {Array<Object>} - the sibling taxa, if any
  */
-export async function getSiblings(taxonomy, taxon) {
+export function getSiblings(taxonomy, taxon) {
      return taxonomy.filter((otherTaxon) => {
          return (
              otherTaxon.parent != null &&
-             otherTaxon != taxon && otherTaxon.parent == taxon.parent
+             otherTaxon.id != taxon.id && otherTaxon.parent == taxon.parent
          );
      });
 }
@@ -117,7 +103,9 @@ export function getChildren(taxonomy, taxon) {
  */
 export function getDescendants(taxonomy, taxon) {
     return taxonomy.filter((otherTaxon) => {
-        return otherTaxon != taxon && otherTaxon.id.indexOf(taxon.id) == 0;
+        return (
+            otherTaxon.id != taxon.id && otherTaxon.id.indexOf(taxon.id) == 0
+        );
     });
 }
 
@@ -127,11 +115,13 @@ export function getDescendants(taxonomy, taxon) {
  * @param {Array<Object>} taxonomy - the taxonomy to search
  * @param {Object} taxon - the taxon of which to find descendants
  *
- * @returns {Promise<Array<Object>>} - the ancestor taxa, if any
+ * @returns {Array<Object>} - the ancestor taxa, if any
  */
-export async function getAncestors(taxonomy, taxon) {
+export function getAncestors(taxonomy, taxon) {
     return taxonomy.filter((otherTaxon) => {
-        return otherTaxon != taxon && taxon.id.indexOf(otherTaxon.id) == 0;
+        return (
+            otherTaxon.id != taxon.id && taxon.id.indexOf(otherTaxon.id) == 0
+        );
     });
 }
 
@@ -145,7 +135,7 @@ export async function getAncestors(taxonomy, taxon) {
  * @returns {Array<Object>} - the sorted taxonomy
  */
 export function sortTaxaByLevel(taxonomy, descending = false) {
-    return taxonomy.sort((a, b) => {
+    return structuredClone(taxonomy).sort((a, b) => {
         if (descending) {
             return b.level - a.level;
         }
@@ -164,7 +154,7 @@ export function sortTaxaByLevel(taxonomy, descending = false) {
 export function subsetTaxonomy(taxonomy, removeTaxa) {
     return taxonomy.filter((taxon) => {
         for (let removeTaxon of removeTaxa) {
-            if (removeTaxon == taxon) {
+            if (removeTaxon.id == taxon.id) {
                 return false;
             }
         }
@@ -173,9 +163,13 @@ export function subsetTaxonomy(taxonomy, removeTaxa) {
 }
 
 /**
+ * Parses current taxonomy to render all taxa viewed at `level` after taking
+ * groupings and expansions into account.
  *
+ * @param {Array<Object>} taxonomy - the global taxonomy
+ * @param {Number} level - the taxonomic level at which to render
  *
- *
+ * @returns {Promise<Array<Object>>} - the rendered taxonomic view at `level`
  */
 export async function renderTaxonomicView(taxonomy, level) {
     let view = getTaxaAtLevel(taxonomy, level);
@@ -199,6 +193,7 @@ export async function renderTaxonomicView(taxonomy, level) {
             if (taxon.expand) {
                 let children = getChildren(taxonomy, taxon);
                 if (!children.length) {
+                    // TODO: disallow this in onClick?
                     taxon.expand = false;
                 } else {
                     view = subsetTaxonomy(view, [taxon]);
