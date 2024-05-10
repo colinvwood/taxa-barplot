@@ -181,8 +181,6 @@ test('getAncestors', () => {
 });
 
 test('sortTaxaByLevel', () => {
-    let ogTaxonomy = structuredClone(taxonomy);
-
     let exp = [
         taxonomy[0], taxonomy[3], taxonomy[1], taxonomy[2], taxonomy[4],
         taxonomy[5]
@@ -196,9 +194,6 @@ test('sortTaxaByLevel', () => {
     ];
     obs = sortTaxaByLevel(taxonomy, true);
     expect(obs).toEqual(exp);
-
-    // taxonomy is not mutated
-    expect(taxonomy).toEqual(ogTaxonomy);
 });
 
 test('subsetTaxonomy', () => {
@@ -232,7 +227,6 @@ test('renderTaxonomicView groups', async () => {
         {id: 'a2;b1;c2', name: 'c2', parent: 'a2;b1', level: 3, group: false},
     ];
 
-    /*
     // single group
     taxonomy[5].group = true;
     let obs = await renderTaxonomicView(taxonomy, 3);
@@ -275,13 +269,12 @@ test('renderTaxonomicView groups', async () => {
     ];
     expect(obs).toEqual(exp);
     taxonomy[3].group = false;
-    */
 
     // nested groups
     taxonomy[0].group = true;
     taxonomy[2].group = true;
-    let obs = await renderTaxonomicView(taxonomy, 3);
-    let exp = [
+    obs = await renderTaxonomicView(taxonomy, 3);
+    exp = [
         {id: 'a2;b1;c1', name: 'c1', parent: 'a2;b1', level: 3, group: false},
         {id: 'a2;b1;c2', name: 'c2', parent: 'a2;b1', level: 3, group: false},
         {id: 'a1', name: 'a1', parent: null, level: 1, group: true},
@@ -384,7 +377,8 @@ test('renderTaxonomicView groups and expansions', async () => {
          expand: false},
         {id: 'a2;b1;c2', name: 'c2', parent: 'a2;b1', level: 3, group: false,
          expand: false},
-   ];
+    ];
+    let ogTaxonomy = structuredClone(taxonomy);
 
     // group and expand
     taxonomy[0].group = true;
@@ -416,4 +410,6 @@ test('renderTaxonomicView groups and expansions', async () => {
     taxonomy[0].group = false;
     taxonomy[1].expand = false;
 
+    // taxonomy not side-effected
+    expect(taxonomy).toEqual(ogTaxonomy);
 });
