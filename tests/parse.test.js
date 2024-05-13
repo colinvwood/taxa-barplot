@@ -14,20 +14,20 @@ test('parse taxonomy', async () => {
     };
 
     const exp = [
-        {id: 'a1', name: 'a1', parent: null, level: 1, group: false,
-         expand: false},
-        {id: 'a1;b1', name: 'b1', parent: 'a1', level: 2, group: false,
-         expand: false},
-        {id: 'a1;b1;c1', name: 'c1', parent: 'a1;b1', level: 3, group: false,
-         expand: false},
-        {id: 'a1;b1;c2', name: 'c2', parent: 'a1;b1', level: 3, group: false,
-         expand: false},
-        {id: 'a2', name: 'a2', parent: null, level: 1, group: false,
-         expand: false},
-        {id: 'a2;b2', name: 'b2', parent: 'a2', level: 2, group: false,
-         expand: false},
-        {id: 'a2;b2;c3', name: 'c3', parent: 'a2;b2', level: 3, group: false,
-         expand: false},
+        {id: 'a1', name: 'a1', parent: null, level: 1, filter: false,
+         group: false, expand: false},
+        {id: 'a1;b1', name: 'b1', parent: 'a1', level: 2, filter: false,
+         group: false, expand: false},
+        {id: 'a1;b1;c1', name: 'c1', parent: 'a1;b1', level: 3, filter: false,
+         group: false, expand: false},
+        {id: 'a1;b1;c2', name: 'c2', parent: 'a1;b1', level: 3, filter: false,
+         group: false, expand: false},
+        {id: 'a2', name: 'a2', parent: null, level: 1, filter: false,
+         group: false, expand: false},
+        {id: 'a2;b2', name: 'b2', parent: 'a2', level: 2, filter: false,
+         group: false, expand: false},
+        {id: 'a2;b2;c3', name: 'c3', parent: 'a2;b2', level: 3, filter: false,
+         group: false, expand: false},
     ];
 
     const obs = await parseTaxonomy('taxonomy.tsv', mockedReadFunc);

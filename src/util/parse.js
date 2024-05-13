@@ -47,6 +47,7 @@ export async function parseFeatureTable(
  *         name: 'c__Bacilli',
  *         parent: 'd__Bacteria;p__Bacilota',
  *         level: 3,
+ *         filter: false,
  *         group: false,
  *         expand: false
  *     }
@@ -87,6 +88,7 @@ export async function parseTaxonomy(
                     name,
                     parent,
                     level: i + 1,
+                    filter: false,
                     group: false,
                     expand: false
                 });
