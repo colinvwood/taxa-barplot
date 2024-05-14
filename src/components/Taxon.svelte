@@ -1,37 +1,89 @@
 <script>
+    import { get } from 'svelte/store';
+
     import {
-        globalTaxonomyStore, parentStore, siblingsStore, childrenStore
+        globalTaxonomy, selectedTaxon, hubTaxon
     } from '../stores/stores.js';
-    import { getParent, getSiblings, getChildren } from '../util/taxonomy.js';
+    import {
+        getParent, getSiblings, getChildren
+    } from '../util/taxonomy.js';
 
     export let taxon;
-    export let selectable;
+    export let currentLevel = false;
 
-    function handleSelect(event) {
-        if (!selectable) {
-            return;
+    function handleSelect() {
+        selectedTaxon.set(taxon);
+
+        if (currentLevel) {
+            hubTaxon.set(taxon);
         }
+    }
 
-        getParent($globalTaxonomyStore, taxon).then((parent) => {
-            parentStore.set([parent]);
-        });
-
-        getSiblings($globalTaxonomyStore, taxon).then((siblings) => {
-            siblingsStore.set(siblings);
-        });
-
-        getChildren($globalTaxonomyStore, taxon).then((children) => {
-            childrenStore.set(children);
-        });
-
+    function toggleTaxonProperty(property) {
+        return () => {
+            globalTaxonomy.update(taxa => {
+                for (let otherTaxon of taxa) {
+                    if (otherTaxon == taxon) {
+                        otherTaxon[property] = !taxon[property];
+                    }
+                }
+                return taxa;
+            });
+        }
     }
 
 </script>
 
-<button on:click={handleSelect}>{taxon.name}</button>
+<div
+    class="taxon"
+    on:click={handleSelect}
+    on:keydown={handleSelect}
+    role="button"
+    tabindex="0"
+>
+    <span>{taxon.name}</span>
+    <div class="buttons-container">
+        <button
+            class="filter-button {taxon.filter ? 'filtered' : ''}"
+            on:click={toggleTaxonProperty('filter')}
+        >F</button>
+        <button
+            class="group-button {taxon.group ? 'grouped' : ''}"
+            on:click={toggleTaxonProperty('group')}
+        >G</button>
+        <button
+            class="expand-button {taxon.expand ? 'expanded' : ''}"
+            on:click={toggleTaxonProperty('expand')}
+        >E</button>
+    </div>
+</div>
+
 
 <style>
-    button {
-        display: block;
+    .taxon {
+        display: flex;
+        justify-content: space-between;
+        padding: 1px 10px;
+    }
+
+    .group-button {
+    }
+    .grouped {
+        font-weight: bold;
+        background-color: #609146;
+    }
+
+    .filter-button {
+    }
+    .filtered {
+        font-weight: bold;
+        background-color: #df4e28;
+    }
+
+    .expand-button {
+    }
+    .expanded {
+        font-weight: bold;
+        background-color: #fff44b;
     }
 </style>

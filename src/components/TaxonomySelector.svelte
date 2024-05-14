@@ -2,61 +2,50 @@
     import { onMount, onDestroy } from 'svelte';
     import { get } from 'svelte/store';
 
-    import { getTaxaAtLevel } from '../util/taxonomy.js';
     import {
-        globalTaxonomyStore, parentStore, siblingsStore, childrenStore
-    } from '../stores/stores.js';
+        renderTaxonomicView, getParent, getSiblings, getChildren
+    } from '../util/taxonomy.js';
+    import { globalTaxonomy, selectedTaxon } from '../stores/stores.js';
 
     import TaxonList from './TaxonList.svelte';
+    import TaxonInfo from './TaxonInfo.svelte';
+    import CurrentLevel from './CurrentLevel.svelte';
 
-    let currentLevel = 1;
-    let currentLevelTaxa = [];
-
-    let unsubscribe;
-    onMount(async() => {
-        unsubscribe = globalTaxonomyStore.subscribe(async(taxonomy) => {
-            currentLevelTaxa = await getTaxaAtLevel(
-                taxonomy, currentLevel
-            );
-        });
-    });
-
-    onDestroy(() => {
-        unsubscribe();
-    });
-
-    async function handleLevelChange(event) {
-        currentLevelTaxa = await getTaxaAtLevel(
-            get(globalTaxonomyStore), currentLevel
-        );
-    }
-
+    let level = 1;
 
 </script>
 
 
-<div id="container">
-    <input bind:value={currentLevel} />
-    <button on:click={handleLevelChange}>Update</button>
+<div class="container">
+    <input bind:value={level} />
 
     <p>parent</p>
-    <div id="parent">
-        <TaxonList taxa={$parentStore} />
+    <div class="parent">
+        <TaxonList subsetter={getParent} />
     </div>
 
     <p>siblings</p>
-    <div id="siblings">
-        <TaxonList taxa={$siblingsStore}/>
+    <div class="siblings">
+        <TaxonList subsetter={getSiblings} />
     </div>
 
-    <p>taxa at level {currentLevel}</p>
-    <div id="currentLevel">
-        <TaxonList taxa={currentLevelTaxa} selectable={true} />
+    <p>taxa at level {level}</p>
+    <div class="currentLevel">
+        <CurrentLevel
+            subsetter={renderTaxonomicView}
+            currentLevel={true}
+            level={level}
+        />
     </div>
 
     <p>children</p>
-    <div id="children">
-        <TaxonList taxa={$childrenStore} />
+    <div class="children">
+        <TaxonList subsetter={getChildren} />
+    </div>
+
+    <p>info</p>
+    <div class="info">
+        <TaxonInfo taxon={$selectedTaxon} />
     </div>
 
 </div>
@@ -74,21 +63,21 @@
         margin-bottom: 0px;
     }
 
-    #container {
+    .container {
         width: 400px;
         border: none;
         display: block;
     }
-    #parent {
+    .parent {
         height: 25px;
     }
-    #siblings {
+    .siblings {
         height: 100px;
     }
-    #currentLevel {
+    .currentLevel {
         height: 400px;
     }
-    #children {
+    .children {
         height: 200px;
     }
 </style>

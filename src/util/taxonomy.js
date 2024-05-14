@@ -1,5 +1,5 @@
  /**
-  * Returns all taxa that at level `level` in the taxonomy.
+  * Returns all taxa at level `level` in the taxonomy.
   *
   * @param {Array<object>} taxonomy - the taxonomy to filter
   * @param {Number} level - the taxonomic level at which to retain taxa
@@ -48,10 +48,10 @@ export function getTaxaBeneathLevel(taxonomy, level) {
  * @param {Array<Object>} taxonomy - the taxonomy to search
  * @param {Object} taxon - the taxon of which to find the parent
  *
- * @returns {Object|null} - the parent of taxon `taxon` or null if not
+ * @returns {Promise<Object|null>} - the parent of taxon `taxon` or null if not
  * found
  */
-export function getParent(taxonomy, taxon) {
+export async function getParent(taxonomy, taxon) {
     for (let otherTaxon of taxonomy) {
         if (otherTaxon.id == taxon.parent) {
            return otherTaxon;
@@ -68,9 +68,9 @@ export function getParent(taxonomy, taxon) {
  * @param {Array<Object>} taxonomy - the taxonomy to search
  * @param {Object} taxon - the taxon of which to find the siblings
  *
- * @returns {Array<Object>} - the sibling taxa, if any
+ * @returns {Promise<Array<Object>>} - the sibling taxa, if any
  */
-export function getSiblings(taxonomy, taxon) {
+export async function getSiblings(taxonomy, taxon) {
      return taxonomy.filter((otherTaxon) => {
          return (
              otherTaxon.parent != null &&
@@ -85,9 +85,9 @@ export function getSiblings(taxonomy, taxon) {
  * @param {Array<Object>} taxonomy - the taxonomy to search
  * @param {Object} taxon - the taxon of which to find the children
  *
- * @returns {Array<Object>} - the children taxa, if any
+ * @returns {Promise<Array<Object>>} - the children taxa, if any
  */
-export function getChildren(taxonomy, taxon) {
+export async function getChildren(taxonomy, taxon) {
     return taxonomy.filter((otherTaxon) => {
         return otherTaxon.parent == taxon.id;
     });
@@ -191,7 +191,7 @@ export async function renderTaxonomicView(taxonomy, level) {
     while ( view.filter(taxon => taxon.expand).length ) {
         for (let taxon of view) {
             if (taxon.expand) {
-                let children = getChildren(taxonomy, taxon);
+                let children = await getChildren(taxonomy, taxon);
                 if (!children.length) {
                     // TODO: disallow this in onClick?
                     taxon.expand = false;

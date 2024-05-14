@@ -1,6 +1,6 @@
 <script>
     import { parseTaxonomy, parseFeatureTable }  from './util/parse.js';
-    import { globalTaxonomyStore } from './stores/stores.js';
+    import { globalTaxonomy } from './stores/stores.js';
 
     import TaxonomySelector from './components/TaxonomySelector.svelte';
 
@@ -12,7 +12,7 @@
     });
 
     taxonomy.then((taxonomy) => {
-        globalTaxonomyStore.set(taxonomy);
+        globalTaxonomy.set(taxonomy);
     });
 
 </script>

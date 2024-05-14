@@ -1,13 +1,20 @@
 <script>
     import Taxon from './Taxon.svelte';
 
-    export let taxa = [];
-    export let selectable = false;
+    import { globalTaxonomy, hubTaxon } from '../stores/stores.js';
 
+    export let subsetter;
+    export let currentLevel = false;
+
+    $: taxaPromise = subsetter($globalTaxonomy, $hubTaxon)
 </script>
 
-<div>
-    {#each taxa as taxon}
-        <Taxon {taxon} {selectable} />
-    {/each}
-</div>
+{#await taxaPromise then taxa}
+    {#if taxa != null && taxa.constructor === Array}
+        {#each taxa as taxon}
+            <Taxon {taxon} {currentLevel} />
+        {/each}
+    {:else if taxa != null}
+        <Taxon taxon={taxa} {currentLevel} />
+    {/if}
+{/await}

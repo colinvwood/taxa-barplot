@@ -95,54 +95,54 @@ test('getTaxaBeneathLevel', () => {
     expect(obs).toEqual(taxonomy);
 });
 
-test('getParent', () => {
+test('getParent', async () => {
     let taxon = taxonomy[1];
     let exp = taxonomy[0];
-    let obs = getParent(taxonomy, taxon);
+    let obs = await getParent(taxonomy, taxon);
     expect(obs).toEqual(exp);
 
     taxon = taxonomy[4];
     exp = taxonomy[3];
-    obs = getParent(taxonomy, taxon);
+    obs = await getParent(taxonomy, taxon);
     expect(obs).toEqual(exp);
 
     taxon = taxonomy[0];
     exp = null;
-    obs = getParent(taxonomy, taxon);
+    obs = await getParent(taxonomy, taxon);
     expect(obs).toEqual(exp);
 
     taxon = {id: 'a;b;c', name: 'c', parent: 'a;b', level: 3};
     exp = null;
-    obs = getParent(taxonomy, taxon);
+    obs = await getParent(taxonomy, taxon);
     expect(obs).toEqual(exp);
 });
 
-test('getSiblings', () => {
+test('getSiblings', async () => {
     let taxon = taxonomy[1];
     let exp = [taxonomy[2]];
-    let obs = getSiblings(taxonomy, taxon);
+    let obs = await getSiblings(taxonomy, taxon);
     expect(obs).toEqual(exp);
 
     taxon = taxonomy[0];
     exp = [];
-    obs = getSiblings(taxonomy, taxon);
+    obs = await getSiblings(taxonomy, taxon);
     expect(obs).toEqual(exp);
 });
 
-test('getChildren', () => {
+test('getChildren', async () => {
     let taxon = taxonomy[0];
     let exp = [taxonomy[1], taxonomy[2]];
-    let obs = getChildren(taxonomy, taxon);
+    let obs = await getChildren(taxonomy, taxon);
     expect(obs).toEqual(exp);
 
     taxon = taxonomy[4];
     exp = [taxonomy[5]];
-    obs = getChildren(taxonomy, taxon);
+    obs = await getChildren(taxonomy, taxon);
     expect(obs).toEqual(exp);
 
     taxon = {id: 'a;b;c', name: 'c', parent: 'a;b', level: 3}
     exp = [];
-    obs = getChildren(taxonomy, taxon);
+    obs = await getChildren(taxonomy, taxon);
     expect(obs).toEqual(exp);
 });
 
@@ -279,8 +279,6 @@ test('renderTaxonomicView groups', async () => {
         {id: 'a2;b1;c2', name: 'c2', parent: 'a2;b1', level: 3, group: false},
         {id: 'a1', name: 'a1', parent: null, level: 1, group: true},
     ];
-    console.log('exp', exp)
-    console.log('obs', obs)
     expect(obs).toEqual(exp);
     taxonomy[0].group = false;
     taxonomy[2].group = false;

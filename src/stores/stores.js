@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store';
 
-export const globalTaxonomyStore = writable([]);
-export const parentStore = writable([]);
-export const siblingsStore = writable([]);
-export const childrenStore = writable([]);
+export const globalTaxonomy = writable([]);
+export const currentLevelStore = writable([]);
+export const selectedTaxon = writable({});
+export const hubTaxon = writable({});
