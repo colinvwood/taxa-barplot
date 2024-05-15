@@ -13,6 +13,21 @@ export function getTaxaAtLevel(taxonomy, level) {
 }
 
 /**
+ * Returns all taxa at viewLevel `viewLevel` in the taxonomy.
+ *
+ * @param {Array<object>} taxonomy - the taxonomy to filter
+ * @param {Number} viewLevel - the taxonomic viewLevel at which to retain taxa
+ *
+ * @returns {Promise<Array<Object>>} - the taxa at viewLevel `viewLevel`
+ */
+export async function getTaxaAtViewLevel(taxonomy, viewLevel) {
+   return taxonomy.filter((taxon) => {
+       return taxon.viewLevel == viewLevel;
+   });
+}
+
+
+/**
  * Returns all taxa that are above `level` in the taxonomy. Note that above
  * means those that have a lesser `level` property.
  *
@@ -134,8 +149,11 @@ export function getAncestors(taxonomy, taxon) {
  *
  * @returns {Array<Object>} - the sorted taxonomy
  */
-export function sortTaxaByLevel(taxonomy, descending = false) {
-    return structuredClone(taxonomy).sort((a, b) => {
+export function sortTaxaByLevel(taxonomy, clone = true, descending = false) {
+    if (clone) {
+        taxonomy = structuredClone(taxonomy);
+    }
+    return taxonomy.sort((a, b) => {
         if (descending) {
             return b.level - a.level;
         }
@@ -163,45 +181,84 @@ export function subsetTaxonomy(taxonomy, removeTaxa) {
 }
 
 /**
- * Parses current taxonomy to render all taxa viewed at `level` after taking
- * groupings and expansions into account.
+ * Assigns the proper `viewLevel` to all taxa, taking into account the render
+ * level, and any filters, groups, expansions. Note that `taxonomy` is
+ * side-effected.
  *
  * @param {Array<Object>} taxonomy - the global taxonomy
  * @param {Number} level - the taxonomic level at which to render
  *
- * @returns {Promise<Array<Object>>} - the rendered taxonomic view at `level`
+ * @returns {Promise<Array<Object>>} - the rendered taxonomic view
  */
-export async function renderTaxonomicView(taxonomy, level) {
-    let view = getTaxaAtLevel(taxonomy, level);
-
-    // resolve groups
-    let remaining = sortTaxaByLevel(getTaxaAboveLevel(taxonomy, level));
-    while (remaining.length) {
-        let taxon = remaining.shift();
-        if (taxon.group) {
-            view.push(taxon);
-
-            let descendants = getDescendants(taxonomy, taxon);
-            view = subsetTaxonomy(view, descendants);
-            remaining = subsetTaxonomy(remaining, descendants);
-        }
+export async function renderTaxonomy(taxonomy, level) {
+    // TODO: deal with this
+    for (let taxon of taxonomy) {
+        taxon.viewLevel = taxon.level;
     }
 
+    // resolve filters
+    let toBeFiltered = sortTaxaByLevel(taxonomy, false);
+    let filteredTaxonomy = [];
+    while (toBeFiltered.length) {
+        let taxon = toBeFiltered.shift();
+        filteredTaxonomy.push(taxon);
+
+        if (taxon.filter) {
+            taxon.viewLevel = -1;
+
+            let descendants = getDescendants(toBeFiltered, taxon);
+            for (let descendant of descendants) {
+                descendant.viewLevel = -1;
+            }
+
+            toBeFiltered = subsetTaxonomy(toBeFiltered, descendants);
+            filteredTaxonomy.push(...descendants);
+        }
+    }
+    taxonomy = filteredTaxonomy;
+
+    // resolve groupings
+    let toBeGrouped = sortTaxaByLevel(taxonomy, false);
+    let groupedTaxonomy = [];
+    while (toBeGrouped.length) {
+        let taxon = toBeGrouped.shift();
+        groupedTaxonomy.push(taxon);
+
+        if (taxon.level >= level) {
+            continue;
+        }
+
+        if (taxon.group) {
+            taxon.viewLevel = level;
+
+            let descendants = getDescendants(toBeGrouped, taxon);
+            for (let descendant of descendants) {
+                descendant.viewLevel = 0;
+            }
+            toBeGrouped = subsetTaxonomy(toBeGrouped, descendants);
+            groupedTaxonomy.push(...descendants);
+        }
+    }
+    taxonomy = groupedTaxonomy;
+
     // resolve expansions
-    while ( view.filter(taxon => taxon.expand).length ) {
-        for (let taxon of view) {
-            if (taxon.expand) {
-                let children = await getChildren(taxonomy, taxon);
-                if (!children.length) {
-                    // TODO: disallow this in onClick?
-                    taxon.expand = false;
-                } else {
-                    view = subsetTaxonomy(view, [taxon]);
-                    view.push(...children);
+    let toBeExpanded = sortTaxaByLevel(taxonomy, false);
+    let expandedTaxonomy = [];
+    while (toBeExpanded.length) {
+        let taxon = toBeExpanded.shift();
+        expandedTaxonomy.push(taxon);
+
+        if (taxon.expand && taxon.viewLevel == level) {
+            let children = await getChildren(toBeExpanded, taxon);
+            if (children.length) {
+                taxon.viewLevel = 0;
+                for (let child of children) {
+                    child.viewLevel = level;
                 }
             }
         }
     }
+    taxonomy = expandedTaxonomy;
 
-    return view;
+    return taxonomy;
 }

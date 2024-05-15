@@ -1,17 +1,18 @@
 <script>
     import Taxon from './Taxon.svelte';
 
-    import { globalTaxonomy, hubTaxon } from '../stores/stores.js';
+    import { globalTaxonomy } from '../stores/stores.js';
+    import { getTaxaAtViewLevel } from '../util/taxonomy.js';
 
-    export let subsetter;
-    export let level;
+    export let viewLevel;
     export let currentLevel = false;
 
-    $: taxaPromise = subsetter($globalTaxonomy, level)
+    $: taxaPromise = getTaxaAtViewLevel($globalTaxonomy, viewLevel)
 </script>
 
 {#await taxaPromise then taxa}
+    <p>{console.log('current level rerender', taxa)}
     {#each taxa as taxon}
-        <Taxon {taxon} {currentLevel} />
+        <Taxon {taxon} {currentLevel} {viewLevel} />
     {/each}
 {/await}

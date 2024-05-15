@@ -88,6 +88,7 @@ export async function parseTaxonomy(
                     name,
                     parent,
                     level: i + 1,
+                    viewLevel: i + 1,
                     filter: false,
                     group: false,
                     expand: false

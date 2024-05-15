@@ -3,7 +3,7 @@
     import { get } from 'svelte/store';
 
     import {
-        renderTaxonomicView, getParent, getSiblings, getChildren
+        renderTaxonomy, getParent, getSiblings, getChildren
     } from '../util/taxonomy.js';
     import { globalTaxonomy, selectedTaxon } from '../stores/stores.js';
 
@@ -11,36 +11,32 @@
     import TaxonInfo from './TaxonInfo.svelte';
     import CurrentLevel from './CurrentLevel.svelte';
 
-    let level = 1;
+    let viewLevel = 1;
 
 </script>
 
 
 <div class="container">
-    <input bind:value={level} />
+    <input bind:value={viewLevel} />
 
     <p>parent</p>
     <div class="parent">
-        <TaxonList subsetter={getParent} />
+        <TaxonList subsetter={getParent} {viewLevel} />
     </div>
 
     <p>siblings</p>
     <div class="siblings">
-        <TaxonList subsetter={getSiblings} />
+        <TaxonList subsetter={getSiblings} {viewLevel} />
     </div>
 
-    <p>taxa at level {level}</p>
+    <p>taxa at level {viewLevel}</p>
     <div class="currentLevel">
-        <CurrentLevel
-            subsetter={renderTaxonomicView}
-            currentLevel={true}
-            level={level}
-        />
+        <CurrentLevel currentLevel={true} {viewLevel} />
     </div>
 
     <p>children</p>
     <div class="children">
-        <TaxonList subsetter={getChildren} />
+        <TaxonList subsetter={getChildren} {viewLevel} />
     </div>
 
     <p>info</p>

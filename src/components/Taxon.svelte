@@ -1,14 +1,12 @@
 <script>
-    import { get } from 'svelte/store';
-
+    import { get } from 'svelte/store'
     import {
         globalTaxonomy, selectedTaxon, hubTaxon
     } from '../stores/stores.js';
-    import {
-        getParent, getSiblings, getChildren
-    } from '../util/taxonomy.js';
+    import { renderTaxonomy } from '../util/taxonomy.js';
 
     export let taxon;
+    export let viewLevel;
     export let currentLevel = false;
 
     function handleSelect() {
@@ -20,15 +18,17 @@
     }
 
     function toggleTaxonProperty(property) {
-        return () => {
-            globalTaxonomy.update(taxa => {
-                for (let otherTaxon of taxa) {
-                    if (otherTaxon == taxon) {
-                        otherTaxon[property] = !taxon[property];
-                    }
+        return async () => {
+            console.log('handler ran', taxon);
+            let taxonomy = get(globalTaxonomy);
+            for (let otherTaxon of taxonomy) {
+                if (otherTaxon.id == taxon.id) {
+                    otherTaxon[property] = !taxon[property];
                 }
-                return taxa;
-            });
+            }
+
+            taxonomy = await renderTaxonomy(taxonomy, viewLevel);
+            globalTaxonomy.set(taxonomy);
         }
     }
 

@@ -4,6 +4,7 @@
     import { globalTaxonomy, hubTaxon } from '../stores/stores.js';
 
     export let subsetter;
+    export let viewLevel;
     export let currentLevel = false;
 
     $: taxaPromise = subsetter($globalTaxonomy, $hubTaxon)
@@ -12,9 +13,9 @@
 {#await taxaPromise then taxa}
     {#if taxa != null && taxa.constructor === Array}
         {#each taxa as taxon}
-            <Taxon {taxon} {currentLevel} />
+            <Taxon {taxon} {currentLevel} {viewLevel} />
         {/each}
     {:else if taxa != null}
-        <Taxon taxon={taxa} {currentLevel} />
+        <Taxon taxon={taxa} {currentLevel} {viewLevel} />
     {/if}
 {/await}
