@@ -3,10 +3,8 @@
     import {
         globalTaxonomy, selectedTaxon, hubTaxon
     } from '../stores/stores.js';
-    import { renderTaxonomy } from '../util/taxonomy.js';
 
     export let taxon;
-    export let viewLevel;
     export let currentLevel = false;
 
     function handleSelect() {
@@ -19,23 +17,23 @@
 
     function toggleTaxonProperty(property) {
         return async () => {
-            console.log('handler ran', taxon);
             let taxonomy = get(globalTaxonomy);
             for (let otherTaxon of taxonomy) {
                 if (otherTaxon.id == taxon.id) {
                     otherTaxon[property] = !taxon[property];
                 }
             }
-
-            taxonomy = await renderTaxonomy(taxonomy, viewLevel);
             globalTaxonomy.set(taxonomy);
         }
     }
+
+    $: filtered = taxon.viewLevel == -1;
 
 </script>
 
 <div
     class="taxon"
+    class:filtered
     on:click={handleSelect}
     on:keydown={handleSelect}
     role="button"
@@ -44,15 +42,15 @@
     <span>{taxon.name}</span>
     <div class="buttons-container">
         <button
-            class="filter-button {taxon.filter ? 'filtered' : ''}"
+            class="filter-button {taxon.filter ? 'filter-selected' : ''}"
             on:click={toggleTaxonProperty('filter')}
         >F</button>
         <button
-            class="group-button {taxon.group ? 'grouped' : ''}"
+            class="group-button {taxon.group ? 'group-selected' : ''}"
             on:click={toggleTaxonProperty('group')}
         >G</button>
         <button
-            class="expand-button {taxon.expand ? 'expanded' : ''}"
+            class="expand-button {taxon.expand ? 'expand-selected' : ''}"
             on:click={toggleTaxonProperty('expand')}
         >E</button>
     </div>
@@ -65,24 +63,28 @@
         justify-content: space-between;
         padding: 1px 10px;
     }
+    .filtered {
+        background-color: #ffaa98;
+        font-size: 40;
+    }
 
     .group-button {
     }
-    .grouped {
+    .group-selected {
         font-weight: bold;
         background-color: #609146;
     }
 
     .filter-button {
     }
-    .filtered {
+    .filter-selected {
         font-weight: bold;
         background-color: #df4e28;
     }
 
     .expand-button {
     }
-    .expanded {
+    .expand-selected {
         font-weight: bold;
         background-color: #fff44b;
     }

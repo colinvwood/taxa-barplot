@@ -13,9 +13,9 @@
 {#await taxaPromise then taxa}
     {#if taxa != null && taxa.constructor === Array}
         {#each taxa as taxon}
-            <Taxon {taxon} {currentLevel} {viewLevel} />
+            <Taxon {taxon} {currentLevel} />
         {/each}
     {:else if taxa != null}
-        <Taxon taxon={taxa} {currentLevel} {viewLevel} />
+        <Taxon taxon={taxa} {currentLevel} />
     {/if}
 {/await}

@@ -13,7 +13,7 @@ export function getTaxaAtLevel(taxonomy, level) {
 }
 
 /**
- * Returns all taxa at viewLevel `viewLevel` in the taxonomy.
+ * Returns all taxa viewable at `viewLevel`. These include filtered taxa.
  *
  * @param {Array<object>} taxonomy - the taxonomy to filter
  * @param {Number} viewLevel - the taxonomic viewLevel at which to retain taxa
@@ -22,7 +22,12 @@ export function getTaxaAtLevel(taxonomy, level) {
  */
 export async function getTaxaAtViewLevel(taxonomy, viewLevel) {
    return taxonomy.filter((taxon) => {
-       return taxon.viewLevel == viewLevel;
+       if (taxon.viewLevel == viewLevel) {
+           return true;
+       } else if (taxon.viewLevel == -1 && taxon.level == viewLevel) {
+           return true;
+       }
+       return false;
    });
 }
 
@@ -125,6 +130,33 @@ export function getDescendants(taxonomy, taxon) {
 }
 
 /**
+ * Return all leaf descendants of `taxon`. If `taxon` is itself a leaf,
+ * [`taxon`] will be returned.
+ *
+ * @param {Array<Object>} taxonomy - the taxonomy to search
+ * @param {Object} taxon - the taxon of which to find leaf descendants
+ *
+ * @returns {Promise<Array<Object>>} - the descendant taxa, if any
+ */
+export async function getLeafDescendants(taxonomy, taxon) {
+    const descendants = getDescendants(taxonomy, taxon);
+
+    if (!descendants.length) {
+        return [taxon];
+    }
+
+    let leaves = [];
+    for (let descendant of descendants) {
+        let children = await getChildren(taxonomy, descendant);
+        if (!children.length) {
+            leaves.push(descendant);
+        }
+    }
+
+    return leaves;
+}
+
+/**
  * Return all ancestors of  `taxon`.
  *
  * @param {Array<Object>} taxonomy - the taxonomy to search
@@ -192,6 +224,7 @@ export function subsetTaxonomy(taxonomy, removeTaxa) {
  */
 export async function renderTaxonomy(taxonomy, level) {
     // TODO: deal with this
+    taxonomy = structuredClone(taxonomy);
     for (let taxon of taxonomy) {
         taxon.viewLevel = taxon.level;
     }
@@ -224,7 +257,7 @@ export async function renderTaxonomy(taxonomy, level) {
         let taxon = toBeGrouped.shift();
         groupedTaxonomy.push(taxon);
 
-        if (taxon.level >= level) {
+        if (taxon.level >= level || taxon.viewLevel == -1) {
             continue;
         }
 

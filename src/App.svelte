@@ -8,10 +8,12 @@
     let taxonomy = parseTaxonomy('taxonomy.tsv');
 
     table.then((table) => {
-        console.log(table);
+        // console.log(table);
     });
 
     taxonomy.then((taxonomy) => {
+        // calculate stats
+
         globalTaxonomy.set(taxonomy);
     });
 

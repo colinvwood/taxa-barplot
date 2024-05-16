@@ -1,8 +1,8 @@
 import { test, expect } from 'vitest';
 import {
     getTaxaAtLevel, getTaxaAboveLevel, getTaxaBeneathLevel, getParent,
-    getSiblings, getChildren, getDescendants, getAncestors, sortTaxaByLevel,
-    subsetTaxonomy, renderTaxonomy
+    getSiblings, getChildren, getDescendants, getLeafDescendants, getAncestors,
+    sortTaxaByLevel, subsetTaxonomy, renderTaxonomy
 } from '../src/util/taxonomy.js';
 
 
@@ -143,6 +143,23 @@ test('getChildren', async () => {
     taxon = {id: 'a;b;c', name: 'c', parent: 'a;b', level: 3}
     exp = [];
     obs = await getChildren(taxonomy, taxon);
+    expect(obs).toEqual(exp);
+});
+
+test('getLeafDescendants', async () => {
+    let taxon = taxonomy[0];
+    let exp = [taxonomy[1], taxonomy[2]];
+    let obs = await getLeafDescendants(taxonomy, taxon);
+    expect(obs).toEqual(exp);
+
+    taxon = taxonomy[4];
+    exp = [taxonomy[5]];
+    obs = await getLeafDescendants(taxonomy, taxon);
+    expect(obs).toEqual(exp);
+
+    taxon = taxonomy[5];
+    exp = [taxonomy[5]];
+    obs = await getLeafDescendants(taxonomy, taxon);
     expect(obs).toEqual(exp);
 });
 
