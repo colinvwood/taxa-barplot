@@ -1,5 +1,6 @@
 <script>
     import { parseTaxonomy, parseFeatureTable }  from './util/parse.js';
+    import { calculateTaxonomyStats } from './util/stats.js';
     import { globalTaxonomy } from './stores/stores.js';
 
     import TaxonomySelector from './components/TaxonomySelector.svelte';
@@ -7,13 +8,12 @@
     let table = parseFeatureTable('table.csv', 'sample-id');
     let taxonomy = parseTaxonomy('taxonomy.tsv');
 
-    table.then((table) => {
-        // console.log(table);
-    });
-
-    taxonomy.then((taxonomy) => {
-        // calculate stats
-
+    Promise.all([table, taxonomy]).then((values) => {
+        let table = values[0];
+        let taxonomy = values[1];
+        return calculateTaxonomyStats(taxonomy, table);
+    })
+    .then((taxonomy) => {
         globalTaxonomy.set(taxonomy);
     });
 

@@ -69,6 +69,7 @@ export async function parseTaxonomy(
     let ids = [];
     for (let row of data) {
         let names = row.Taxon.split(delimiter);
+        names = names.map(name => name.trim());
 
         for (let i = 0; i < names.length; i++) {
             let name = names[i];

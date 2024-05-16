@@ -30,7 +30,6 @@ export async function calculateTaxonomyStats(taxonomy, table) {
             }
             return false;
         });
-
         taxon.prevalence = (presentSamples.length / table.length).toFixed(3);
 
         // calculate average abundance
