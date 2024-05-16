@@ -4,6 +4,7 @@
     import { globalTaxonomy } from './stores/stores.js';
 
     import TaxonomySelector from './components/TaxonomySelector.svelte';
+    import TaxonomyLog from './components/TaxonomyLog.svelte';
 
     let table = parseFeatureTable('table.csv', 'sample-id');
     let taxonomy = parseTaxonomy('taxonomy.tsv');
@@ -20,6 +21,7 @@
 </script>
 
 <TaxonomySelector />
+<TaxonomyLog />
 
 <style>
 </style>

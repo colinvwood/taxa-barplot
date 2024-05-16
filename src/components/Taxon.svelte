@@ -1,7 +1,7 @@
 <script>
     import { get } from 'svelte/store'
     import {
-        globalTaxonomy, selectedTaxon, hubTaxon
+        globalTaxonomy, selectedTaxon, hubTaxon, taxonomyLog
     } from '../stores/stores.js';
 
     export let taxon;
@@ -17,13 +17,31 @@
 
     function toggleTaxonProperty(property) {
         return async () => {
+            let remove = true;
+
+            // update global taxonomy
             let taxonomy = get(globalTaxonomy);
             for (let otherTaxon of taxonomy) {
                 if (otherTaxon.id == taxon.id) {
                     otherTaxon[property] = !taxon[property];
+
+                    if (otherTaxon[property]) {
+                        remove = false;
+                    }
                 }
             }
             globalTaxonomy.set(taxonomy);
+
+            // sync action with log
+            let logTaxon = structuredClone(taxon);
+            logTaxon.action = property;
+            if (remove) {
+                taxonomyLog.update((log) => {
+                    return log.filter((item) => item.id != logTaxon.id);
+                });
+            } else {
+                taxonomyLog.update((log) => [logTaxon, ...log]);
+            }
         }
     }
 
