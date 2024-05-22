@@ -263,8 +263,6 @@ test('renderTaxonomy filters', async () => {
          filter: false},
     ];
 
-    // stop
-
     taxonomy[0].filter = true;
     let obs = await renderTaxonomy(structuredClone(taxonomy));
     expect(new Set(obs)).toEqual(new Set(exp));

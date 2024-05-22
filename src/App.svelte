@@ -1,6 +1,6 @@
 <script>
     import { parseTaxonomy, parseFeatureTable }  from './util/parse.js';
-    import { calculateTaxonomyStats } from './util/stats.js';
+    import { calculateTaxonomyStats } from './util/table.js';
     import { globalTaxonomy } from './stores/stores.js';
 
     import TaxonomySelector from './components/TaxonomySelector.svelte';

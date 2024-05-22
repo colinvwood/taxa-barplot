@@ -1,5 +1,44 @@
-import { getLeafDescendants } from './taxonomy.js';
+import { getTaxaAtViewLevel, getLeafDescendants } from './taxonomy.js';
 
+
+/**
+ *
+ *
+ *
+ *
+ */
+export async function renderTable(table, taxonomyView, level, globalTaxonomy) {
+    taxonomyView = await getTaxaAtViewLevel(taxonomyView, level);
+
+    let renderedTable = [];
+    for (const sample of table) {
+        let renderedSample = {...sample, features: []};
+
+        // find abundance of each taxon in currently rendered level
+        for (const taxon of taxonomyView) {
+            if (taxon.viewLevel == -1) {
+                continue;
+            }
+
+            const leaves = await getLeafDescendants(globalTaxonomy, taxon);
+            const abundance = getSumLeafAbundances(sample, leaves);
+
+            renderedSample.features.push({abundance, ...taxon});
+        }
+
+        // normalize in case of filters
+        const sampleSum = renderedSample.features.reduce((acc, taxon) => {
+            return acc + taxon.abundance;
+        }, 0);
+        renderedSample.features = renderedSample.features.map(taxon => {
+            return {...taxon, abundance: taxon.abundance / sampleSum};
+        });
+
+        renderedTable.push(renderedSample);
+    }
+
+    return renderedTable;
+}
 
 /**
  * Calculate prevalence and average abundance of each node in `taxonomy`,
