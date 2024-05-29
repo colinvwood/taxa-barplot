@@ -5,38 +5,36 @@
     import {
         renderTaxonomy, getParent, getSiblings, getChildren
     } from '../util/taxonomy.js';
-    import { globalTaxonomy, selectedTaxon } from '../stores/stores.js';
+    import { globalTaxonomy, selectedTaxon, viewLevel } from '../stores/stores.js';
 
     import TaxonList from './TaxonList.svelte';
     import TaxonInfo from './TaxonInfo.svelte';
     import CurrentLevel from './CurrentLevel.svelte';
 
-    let viewLevel = 1;
-
 </script>
 
 
 <div class="container">
-    <input bind:value={viewLevel} />
+    <input bind:value={$viewLevel} />
 
     <p>parent</p>
     <div class="parent">
-        <TaxonList subsetter={getParent} {viewLevel} />
+        <TaxonList subsetter={getParent} />
     </div>
 
     <p>siblings</p>
     <div class="siblings">
-        <TaxonList subsetter={getSiblings} {viewLevel} />
+        <TaxonList subsetter={getSiblings} />
     </div>
 
     <p>taxa at level {viewLevel}</p>
     <div class="currentLevel">
-        <CurrentLevel currentLevel={true} {viewLevel} />
+        <CurrentLevel currentLevel={true} />
     </div>
 
     <p>children</p>
     <div class="children">
-        <TaxonList subsetter={getChildren} {viewLevel} />
+        <TaxonList subsetter={getChildren} />
     </div>
 
     <p>info</p>

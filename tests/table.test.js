@@ -1,6 +1,8 @@
 import { test, expect } from 'vitest';
 
-import { calculateTaxonomyStats, renderTable } from '../src/util/table.js';
+import {
+    calculateTaxonomyStats, renderTable, calcCumAbun
+} from '../src/util/table.js';
 import { renderTaxonomy } from '../src/util/taxonomy.js';
 
 
@@ -77,7 +79,7 @@ test('renderTable', async () => {
     ];
 
     let view = await renderTaxonomy(taxonomy, 2);
-    let obs = await renderTable(table, view, 2, taxonomy);
+    let obs = await renderTable(table, view, 2);
     expect(obs[0]).toEqual({
         id: '1',
         features: [
@@ -91,7 +93,7 @@ test('renderTable', async () => {
     // filter and normalization
     taxonomy[0].filter = true;
     view = await renderTaxonomy(taxonomy, 2);
-    obs = await renderTable(table, view, 2, taxonomy);
+    obs = await renderTable(table, view, 2);
     expect(obs[1]).toEqual({
         id: '2',
         features: [
@@ -104,7 +106,7 @@ test('renderTable', async () => {
     // grouping
     taxonomy[0].group = true;
     view = await renderTaxonomy(taxonomy, 3);
-    obs = await renderTable(table, view, 3, taxonomy);
+    obs = await renderTable(table, view, 3);
     expect(obs[2]).toEqual({
         id: '3',
         features: [
@@ -119,7 +121,7 @@ test('renderTable', async () => {
     // expanding
     taxonomy[1].expand = true;
     view = await renderTaxonomy(taxonomy, 2);
-    obs = await renderTable(table, view, 2, taxonomy);
+    obs = await renderTable(table, view, 2);
     expect(obs[0]).toEqual({
         id: '1',
         features: [
@@ -132,6 +134,28 @@ test('renderTable', async () => {
         ]
     });
     delete taxonomy[0].expand;
+});
 
+test('calcCumAbun', async () => {
+    let sample = {
+        id: '1',
+        features: [
+            {id: 'a1', level: 1, viewLevel: 1, abundance: 0.25},
+            {id: 'a2', level: 1, viewLevel: 1, abundance: 0.1},
+            {id: 'a3', level: 1, viewLevel: 1, abundance: 0.15},
+            {id: 'a4', level: 1, viewLevel: 1, abundance: 0.5},
+        ]
+    };
 
+    await calcCumAbun(sample);
+    let exp = {
+        id: '1',
+        features: [
+            {id: 'a1', level: 1, viewLevel: 1, abundance: 0.25, cumAbun: 0.25},
+            {id: 'a2', level: 1, viewLevel: 1, abundance: 0.1, cumAbun: 0.35},
+            {id: 'a3', level: 1, viewLevel: 1, abundance: 0.15, cumAbun: 0.5},
+            {id: 'a4', level: 1, viewLevel: 1, abundance: 0.5, cumAbun: 1},
+        ]
+    };
+    expect(sample).toEqual(exp);
 });

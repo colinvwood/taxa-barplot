@@ -2,25 +2,30 @@ import { getTaxaAtViewLevel, getLeafDescendants } from './taxonomy.js';
 
 
 /**
+ * Render the barplot frequencies given the current taxonomy view at some
+ * `level`, in other words, calculate the relative abundances of all taxa
+ * viewed at `level` for each sample.
  *
+ * @param {Array<Object>} table - the feature table
+ * @param {Array<Object>} taxonomy - the taxonomy (rendered at `level`)
+ * @param {Number} level - the taxonomic level at which to render `table`
  *
- *
- *
+ * @returns {Promise<Array<Object>>} - the rendered table
  */
-export async function renderTable(table, taxonomyView, level, globalTaxonomy) {
-    taxonomyView = await getTaxaAtViewLevel(taxonomyView, level);
+export async function renderTable(table, taxonomy, level) {
+    let taxonomyAtLevel = await getTaxaAtViewLevel(taxonomy, level);
 
     let renderedTable = [];
     for (const sample of table) {
         let renderedSample = {...sample, features: []};
 
         // find abundance of each taxon in currently rendered level
-        for (const taxon of taxonomyView) {
+        for (const taxon of taxonomyAtLevel) {
             if (taxon.viewLevel == -1) {
                 continue;
             }
 
-            const leaves = await getLeafDescendants(globalTaxonomy, taxon);
+            const leaves = await getLeafDescendants(taxonomy, taxon);
             const abundance = getSumLeafAbundances(sample, leaves);
 
             renderedSample.features.push({abundance, ...taxon});
@@ -38,6 +43,20 @@ export async function renderTable(table, taxonomyView, level, globalTaxonomy) {
     }
 
     return renderedTable;
+}
+
+/**
+ * Calculates the cumulative abundance for each taxon in `sample.features`.
+ * Side-effects `sample`.
+ *
+ * @param {Object} sample - the sample object containg the `features` array
+ */
+export async function calcCumAbun(sample) {
+    let cumulativeAbun = 0;
+    for (const feature of sample.features) {
+        cumulativeAbun += feature.abundance;
+        feature.cumAbun = cumulativeAbun;
+    }
 }
 
 /**

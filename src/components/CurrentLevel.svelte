@@ -1,24 +1,36 @@
 <script>
     import { get } from 'svelte/store';
+
     import Taxon from './Taxon.svelte';
 
-    import { globalTaxonomy } from '../stores/stores.js';
+    import { globalTaxonomy, viewLevel } from '../stores/stores.js';
     import { getTaxaAtViewLevel, renderTaxonomy } from '../util/taxonomy.js';
 
-    export let viewLevel;
     export let currentLevel = false;
 
     let taxa = [];
-    $: {
-        renderTaxonomy($globalTaxonomy, viewLevel)
-            .then((renderedTaxonomy) => {
-                return getTaxaAtViewLevel(renderedTaxonomy, viewLevel);
-            })
-            .then((taxaAtLevel) => {
-                taxa = taxaAtLevel;
-            });
 
+    // rerender taxonomy when view level changes
+    $: {
+        renderTaxonomy(
+            get(globalTaxonomy), $viewLevel
+        ).then((renderedTaxonomy) => {
+            console.log('taxonomy rerenderd to level in current level');
+            globalTaxonomy.set(renderedTaxonomy);
+        })
     }
+
+    // update taxonomy in list when taxonomy store changes
+    $: {
+        getTaxaAtViewLevel(
+            $globalTaxonomy, get(viewLevel)
+        ).then((taxaAtLevel) => {
+            console.log('getting taxa at level in current level component')
+            console.log('view level', get(viewLevel));
+            taxa = taxaAtLevel;
+        });
+    }
+
 </script>
 
 {#each taxa as taxon}

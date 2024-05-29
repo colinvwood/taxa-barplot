@@ -4,7 +4,6 @@
     import { globalTaxonomy, hubTaxon } from '../stores/stores.js';
 
     export let subsetter;
-    export let viewLevel;
     export let currentLevel = false;
 
     $: taxaPromise = subsetter($globalTaxonomy, $hubTaxon)

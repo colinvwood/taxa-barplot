@@ -1,6 +1,9 @@
 <script>
     import { get } from 'svelte/store';
-    import { globalTaxonomy, taxonomyLog } from '../stores/stores.js';
+    import {
+        globalTaxonomy, taxonomyLog, viewLevel
+    } from '../stores/stores.js';
+    import { renderTaxonomy } from '../util/taxonomy.js';
 
     export let taxon;
 
@@ -9,15 +12,18 @@
             return log.filter((item) => item.id != taxon.id);
         });
 
-        // TODO: define func, replace here and in Taxon component
-        globalTaxonomy.update(taxonomy => {
-            return taxonomy.map(globalTaxon => {
-                if (globalTaxon.id == taxon.id) {
-                    globalTaxon[taxon.action] = false;
-                }
-                return globalTaxon;
-            });
+        // update taxon in local copy of taxonomy
+        let taxonomy = get(globalTaxonomy).map(globalTaxon => {
+            if (globalTaxon.id == taxon.id) {
+                globalTaxon[taxon.action] = false;
+            }
+            return globalTaxon;
         });
+
+        // render modified taxonomy and update store
+        renderTaxonomy(taxonomy, get(viewLevel)).then(renderedTaxonomy => {
+            globalTaxonomy.set(renderedTaxonomy);
+        })
 
     }
 

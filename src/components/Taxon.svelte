@@ -1,8 +1,10 @@
 <script>
     import { get } from 'svelte/store'
+
     import {
-        globalTaxonomy, selectedTaxon, hubTaxon, taxonomyLog
+        globalTaxonomy, selectedTaxon, hubTaxon, taxonomyLog, viewLevel
     } from '../stores/stores.js';
+    import { renderTaxonomy } from '../util/taxonomy.js';
 
     export let taxon;
     export let currentLevel = false;
@@ -19,7 +21,7 @@
         return async () => {
             let remove = true;
 
-            // update global taxonomy
+            // update taxon in local copy of taxonomy
             let taxonomy = get(globalTaxonomy);
             for (let otherTaxon of taxonomy) {
                 if (otherTaxon.id == taxon.id) {
@@ -30,7 +32,12 @@
                     }
                 }
             }
-            globalTaxonomy.set(taxonomy);
+
+            // render modified taxonomy and update store
+            const level = get(viewLevel);
+            renderTaxonomy(taxonomy, level).then(renderedTaxonomy => {
+                globalTaxonomy.set(renderedTaxonomy);
+            });
 
             // sync action with log
             let logTaxon = structuredClone(taxon);
