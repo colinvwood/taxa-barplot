@@ -8,12 +8,11 @@
 
     export let currentLevel = false;
 
-    let taxa = [];
-
     // rerender taxonomy when view level changes
     $: taxonomy.render($viewLevel)
 
     // update taxonomy in list when taxonomy store changes
+    let taxa = [];
     $: {
         getTaxaAtViewLevel(
             $taxonomy, get(viewLevel)

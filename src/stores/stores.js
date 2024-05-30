@@ -4,18 +4,8 @@ import { renderTaxonomy } from '../util/taxonomy.js';
 import { renderTable } from '../util/table.js';
 
 
-export const globalTaxonomy = writable([]);
 export const globalTable = writable([]);
 export const viewLevel = writable(1);
-
-// export const renderedTable = derived(
-//     [globalTable, globalTaxonomy, viewLevel],
-//     ($globalTable, $globalTaxonomy, $viewLevel) => {
-//         renderTable($globalTable, $globalTaxonomy, $viewLevel).then(table => {
-//             return table;
-//         });
-//     }
-// );
 
 function createTaxonomy() {
     const data = writable([]);
@@ -66,6 +56,20 @@ function createTaxonomy() {
     }
 }
 export const taxonomy = createTaxonomy();
+
+function createTable() {
+    const data = writable([]);
+    const { subscribe, update, set } = data;
+
+
+
+    return {
+        subscribe,
+        set,
+
+    }
+}
+export const table = createTable();
 
 
 export const selectedTaxon = writable({});
