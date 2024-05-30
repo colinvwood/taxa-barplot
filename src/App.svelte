@@ -1,23 +1,23 @@
 <script>
     import { parseTaxonomy, parseFeatureTable }  from './util/parse.js';
     import { calculateTaxonomyStats } from './util/table.js';
-    import { globalTaxonomy, globalTable } from './stores/stores.js';
+    import { taxonomy, globalTable } from './stores/stores.js';
 
     import TaxonomySelector from './components/TaxonomySelector.svelte';
     import TaxonomyLog from './components/TaxonomyLog.svelte';
 
     let table = parseFeatureTable('table.csv', 'sample-id');
-    let taxonomy = parseTaxonomy('taxonomy.tsv');
+    let taxonomyRecords = parseTaxonomy('taxonomy.tsv');
 
-    Promise.all([table, taxonomy]).then((values) => {
+    Promise.all([table, taxonomyRecords]).then((values) => {
         let table = values[0];
         globalTable.set(table);
 
-        let taxonomy = values[1];
-        return calculateTaxonomyStats(taxonomy, table);
+        let taxonomyRecords = values[1];
+        return calculateTaxonomyStats(taxonomyRecords, table);
     })
-    .then((taxonomy) => {
-        globalTaxonomy.set(taxonomy);
+    .then((taxonomyRecordsWithStats) => {
+        taxonomy.set(taxonomyRecordsWithStats);
     });
 
 </script>

@@ -1,12 +1,12 @@
 <script>
     import Taxon from './Taxon.svelte';
 
-    import { globalTaxonomy, hubTaxon } from '../stores/stores.js';
+    import { taxonomy, hubTaxon } from '../stores/stores.js';
 
     export let subsetter;
     export let currentLevel = false;
 
-    $: taxaPromise = subsetter($globalTaxonomy, $hubTaxon)
+    $: taxaPromise = subsetter($taxonomy, $hubTaxon)
 </script>
 
 {#await taxaPromise then taxa}

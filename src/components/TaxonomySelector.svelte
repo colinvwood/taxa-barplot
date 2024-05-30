@@ -1,11 +1,8 @@
 <script>
-    import { onMount, onDestroy } from 'svelte';
-    import { get } from 'svelte/store';
-
     import {
-        renderTaxonomy, getParent, getSiblings, getChildren
+        getParent, getSiblings, getChildren
     } from '../util/taxonomy.js';
-    import { globalTaxonomy, selectedTaxon, viewLevel } from '../stores/stores.js';
+    import { selectedTaxon, viewLevel } from '../stores/stores.js';
 
     import TaxonList from './TaxonList.svelte';
     import TaxonInfo from './TaxonInfo.svelte';
@@ -27,7 +24,7 @@
         <TaxonList subsetter={getSiblings} />
     </div>
 
-    <p>taxa at level {viewLevel}</p>
+    <p>taxa at level {$viewLevel}</p>
     <div class="currentLevel">
         <CurrentLevel currentLevel={true} />
     </div>

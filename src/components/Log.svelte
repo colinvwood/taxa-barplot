@@ -1,7 +1,7 @@
 <script>
     import { get } from 'svelte/store';
     import {
-        globalTaxonomy, taxonomyLog, viewLevel
+        taxonomy, taxonomyLog, viewLevel
     } from '../stores/stores.js';
     import { renderTaxonomy } from '../util/taxonomy.js';
 
@@ -12,19 +12,8 @@
             return log.filter((item) => item.id != taxon.id);
         });
 
-        // update taxon in local copy of taxonomy
-        let taxonomy = get(globalTaxonomy).map(globalTaxon => {
-            if (globalTaxon.id == taxon.id) {
-                globalTaxon[taxon.action] = false;
-            }
-            return globalTaxon;
-        });
-
-        // render modified taxonomy and update store
-        renderTaxonomy(taxonomy, get(viewLevel)).then(renderedTaxonomy => {
-            globalTaxonomy.set(renderedTaxonomy);
-        })
-
+        taxonomy.toggleProperty(taxon.id, taxon.action);
+        taxonomy.render(get(viewLevel));
     }
 
 

@@ -2,9 +2,8 @@
     import { get } from 'svelte/store'
 
     import {
-        globalTaxonomy, selectedTaxon, hubTaxon, taxonomyLog, viewLevel
+        selectedTaxon, hubTaxon, taxonomyLog, viewLevel, taxonomy
     } from '../stores/stores.js';
-    import { renderTaxonomy } from '../util/taxonomy.js';
 
     export let taxon;
     export let currentLevel = false;
@@ -18,38 +17,64 @@
     }
 
     function toggleTaxonProperty(property) {
+
         return async () => {
-            let remove = true;
+            console.log('in toggle prop handler');
 
-            // update taxon in local copy of taxonomy
-            let taxonomy = get(globalTaxonomy);
-            for (let otherTaxon of taxonomy) {
-                if (otherTaxon.id == taxon.id) {
-                    otherTaxon[property] = !taxon[property];
+            // toggle property in taxonomy and rerender
+            const newValue = taxonomy.toggleProperty(taxon.id, property);
+            taxonomy.render(get(viewLevel));
 
-                    if (otherTaxon[property]) {
-                        remove = false;
-                    }
-                }
-            }
+            console.log('taxonomy rerendered, new value', newValue);
 
-            // render modified taxonomy and update store
-            const level = get(viewLevel);
-            renderTaxonomy(taxonomy, level).then(renderedTaxonomy => {
-                globalTaxonomy.set(renderedTaxonomy);
-            });
-
+            // TODO: put this logic in log store
             // sync action with log
             let logTaxon = structuredClone(taxon);
             logTaxon.action = property;
-            if (remove) {
+            if (newValue == false) {
                 taxonomyLog.update((log) => {
                     return log.filter((item) => item.id != logTaxon.id);
                 });
             } else {
                 taxonomyLog.update((log) => [logTaxon, ...log]);
             }
+
         }
+
+        // return async () => {
+        //     let remove = true;
+
+        //     // update taxon in local copy of taxonomy
+        //     let taxonomy = get(globalTaxonomy);
+        //     for (let otherTaxon of taxonomy) {
+        //         if (otherTaxon.id == taxon.id) {
+        //             otherTaxon[property] = !taxon[property];
+
+        //             if (otherTaxon[property]) {
+        //                 remove = false;
+        //             }
+        //         }
+        //     }
+
+        //     // render modified taxonomy and update store
+        //     const level = get(viewLevel);
+
+        //     renderTaxonomy(taxonomy, level).then(renderedTaxonomy => {
+        //         globalTaxonomy.set(renderedTaxonomy);
+        //     });
+
+        //     // sync action with log
+        //     let logTaxon = structuredClone(taxon);
+        //     logTaxon.action = property;
+        //     if (remove) {
+        //         taxonomyLog.update((log) => {
+        //             return log.filter((item) => item.id != logTaxon.id);
+        //         });
+        //     } else {
+        //         taxonomyLog.update((log) => [logTaxon, ...log]);
+        //     }
+        // }
+
     }
 
     $: filtered = taxon.viewLevel == -1;
