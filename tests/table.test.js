@@ -3,7 +3,7 @@ import { test, expect } from 'vitest';
 import {
     calculateTaxonomyStats, renderTable, calcCumAbun
 } from '../src/util/table.js';
-import { renderTaxonomy } from '../src/util/taxonomy.js';
+import { renderCurrentView, expandOrGroupTo } from '../src/util/taxonomy.js';
 
 
 test('caclulateTaxonomyStats', async () => {
@@ -20,15 +20,21 @@ test('caclulateTaxonomyStats', async () => {
     const table = [
         {
             id: '1',
-            features: {'a1;b1;c1': 0.2, 'a1;b1;c2': 0.5, 'a2;b1;c1': 0.3},
+            features: new Map([
+                ['a1;b1;c1', 0.2], ['a1;b1;c2', 0.5], ['a2;b1;c1', 0.3]
+            ])
         },
         {
             id: '2',
-            features: {'a1;b1;c1': 0, 'a1;b1;c2': 0.5, 'a2;b1;c1': 0.5},
+            features: new Map([
+                ['a1;b1;c2', 0.5], ['a2;b1;c1', 0.5]
+            ])
         },
         {
             'id': '3',
-            features: {'a1;b1;c1': 0.8, 'a1;b1;c2': 0.1, 'a2;b1;c1': 0.1},
+            features: new Map([
+                ['a1;b1;c1', 0.8], ['a1;b1;c2', 0.1], ['a2;b1;c1', 0.1]
+            ])
         },
     ];
 
@@ -50,90 +56,89 @@ test('caclulateTaxonomyStats', async () => {
     ];
 
     let obs = await calculateTaxonomyStats(taxonomy, table);
-    expect(obs).toEqual(exp);
+
+    expect(obs[0].prevalence).toEqual('1.000');
+    expect(obs[0].averageAbundance).toEqual('0.700');
+
+    expect(obs[5].prevalence).toEqual('1.000');
+    expect(obs[5].averageAbundance).toEqual('0.300');
 });
 
 test('renderTable', async () => {
     const taxonomy = [
-        {id: 'a1', name: 'a1', parent: null, level: 1, viewLevel: 1},
-        {id: 'a1;b1', name: 'b1', parent: 'a1', level: 2, viewLevel: 2},
-        {id: 'a1;b1;c1', name: 'c1', parent: 'a1;b1', level: 3, viewLevel: 3},
-        {id: 'a1;b1;c2', name: 'c2', parent: 'a1;b1', level: 3, viewLevel: 3},
-        {id: 'a2', name: 'a2', parent: null, level: 1, viewLevel: 1},
-        {id: 'a2;b1', name: 'b1', parent: 'a2', level: 2, viewLevel: 2},
-        {id: 'a2;b1;c1', name: 'c1', parent: 'a2;b1', level: 3, viewLevel: 3},
+        {id: 'a1', name: 'a1', parent: null, level: 1},
+        {id: 'a1;b1', name: 'b1', parent: 'a1', level: 2},
+        {id: 'a1;b1;c1', name: 'c1', parent: 'a1;b1', level: 3},
+        {id: 'a1;b1;c2', name: 'c2', parent: 'a1;b1', level: 3},
+        {id: 'a2', name: 'a2', parent: null, level: 1},
+        {id: 'a2;b1', name: 'b1', parent: 'a2', level: 2},
+        {id: 'a2;b1;c1', name: 'c1', parent: 'a2;b1', level: 3},
     ];
-    const table = [
-        {
-            id: '1',
-            features: {'a1;b1;c1': 0.2, 'a1;b1;c2': 0.5, 'a2;b1;c1': 0.3},
-        },
-        {
-            id: '2',
-            features: {'a1;b1;c1': 0, 'a1;b1;c2': 0.5, 'a2;b1;c1': 0.5},
-        },
-        {
-            'id': '3',
-            features: {'a1;b1;c1': 0.8, 'a1;b1;c2': 0.1, 'a2;b1;c1': 0.1},
-        },
-    ];
+    const sample1 = {
+        id: '1',
+        features: new Map([
+            ['a1;b1;c1', 0.2], ['a1;b1;c2', 0.5], ['a2;b1;c1', 0.3]
+        ])
+    };
+    const sample2 = {
+        id: '2',
+        features: new Map([
+            ['a1;b1;c2', 0.5], ['a2;b1;c1', 0.5]
+        ])
+    };
+    const sample3 = {
+        'id': '3',
+        features: new Map([
+            ['a1;b1;c1', 0.8], ['a1;b1;c2', 0.1], ['a2;b1;c1', 0.1]
+        ])
+    };
+    const table = new Map([['1', sample1], ['2', sample2], ['3', sample3]]);
 
-    let view = await renderTaxonomy(taxonomy, 2);
-    let obs = await renderTable(table, view, 2);
-    expect(obs[0]).toEqual({
+    let taxonomyView = renderCurrentView(taxonomy, 2);
+    let obs = await renderTable(table, taxonomy, taxonomyView);
+    expect(obs.tableView[0]).toEqual({
         id: '1',
         features: [
-            {id: 'a1;b1', name: 'b1', parent: 'a1', level: 2, viewLevel: 2,
-             abundance: 0.7},
-            {id: 'a2;b1', name: 'b1', parent: 'a2', level: 2, viewLevel: 2,
-             abundance: 0.3},
+            {id: 'a1;b1', name: 'b1', level: 2, abundance: 0.7},
+            {id: 'a2;b1', name: 'b1', level: 2, abundance: 0.3},
         ]
     });
 
-    // filter and normalization
-    taxonomy[0].filter = true;
-    view = await renderTaxonomy(taxonomy, 2);
-    obs = await renderTable(table, view, 2);
-    expect(obs[1]).toEqual({
-        id: '2',
+    // filter
+    taxonomy[1].filter = true;
+    taxonomyView = renderCurrentView(taxonomy, 2);
+    obs = await renderTable(table, taxonomy, taxonomyView);
+    expect(obs.tableView[0]).toEqual({
+        id: '1',
         features: [
-            {id: 'a2;b1', name: 'b1', parent: 'a2', level: 2, viewLevel: 2,
-             abundance: 1},
+            {id: 'a2;b1', name: 'b1', level: 2, abundance: 0.3},
         ]
     });
-    delete taxonomy[0].filter;
+    delete taxonomy[1].filter;
 
     // grouping
-    taxonomy[0].group = true;
-    view = await renderTaxonomy(taxonomy, 3);
-    obs = await renderTable(table, view, 3);
-    expect(obs[2]).toEqual({
-        id: '3',
-        features: [
-            {id: 'a1', name: 'a1', parent: null, level: 1, viewLevel: 3,
-             group: true, abundance: 0.9},
-            {id: 'a2;b1;c1', name: 'c1', parent: 'a2;b1', level: 3,
-             viewLevel: 3, abundance: 0.1},
-        ]
-    });
-    delete taxonomy[0].group;
+    let grouped = expandOrGroupTo(
+        structuredClone(taxonomy), 'a1', 'group', 3
+    );
+    taxonomyView = renderCurrentView(grouped.taxonomy, 3);
+    obs = await renderTable(table, taxonomy, taxonomyView);
+    expect( new Set(obs.tableView[2].features) ).toEqual( new Set([
+            {id: 'a1', name: 'a1', level: 1, abundance: 0.9},
+            {id: 'a2;b1;c1', name: 'c1', level: 3, abundance: 0.1}
+    ]) );
+
 
     // expanding
-    taxonomy[1].expand = true;
-    view = await renderTaxonomy(taxonomy, 2);
-    obs = await renderTable(table, view, 2);
-    expect(obs[0]).toEqual({
-        id: '1',
-        features: [
-            {id: 'a2;b1', name: 'b1', parent: 'a2', level: 2, viewLevel: 2,
-             abundance: 0.3},
-            {id: 'a1;b1;c1', name: 'c1', parent: 'a1;b1', level: 3,
-             viewLevel: 2, abundance: 0.2},
-            {id: 'a1;b1;c2', name: 'c2', parent: 'a1;b1', level: 3,
-             viewLevel: 2, abundance: 0.5},
-        ]
-    });
-    delete taxonomy[0].expand;
+    let expanded = expandOrGroupTo(
+        structuredClone(taxonomy), 'a1;b1', 'expand', 3
+    );
+    taxonomyView = renderCurrentView(expanded.taxonomy, 2);
+    obs = await renderTable(table, taxonomy, taxonomyView);
+    expect( new Set(obs.tableView[0].features) ).toEqual( new Set([
+        {id: 'a1;b1;c1', name: 'c1', level: 3, abundance: 0.2},
+        {id: 'a1;b1;c2', name: 'c2', level: 3, abundance: 0.5},
+        {id: 'a2;b1', name: 'b1', level: 2, abundance: 0.3},
+    ]) );
 });
 
 test('calcCumAbun', async () => {

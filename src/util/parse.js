@@ -1,41 +1,28 @@
 import * as d3 from 'd3-fetch';
 
 
-/**
- * Parse a feature table file into an array of sample objects of the form:
- *
- * {
- *     id: 'L1S105',
- *     features: {
- *         'k__K;p__P;c__C;o__O;f__F;g__G;s__S1': 0.1,
- *         'k__K;p__P;c__C;o__O;f__F;g__G;s__S2': 0.4,
-           (...)
- *     }
- * }
- *
- * @param {String} tableFile - filepath of the feature table file
- * @param {String} sampleId - name of the column that identifies the sample
- * @param {Function} readFunc - function used to parse the feature table
- *
- * @returns {Promise<Array<Object>>} - array of sample objects
- */
 export async function parseFeatureTable(
     tableFile, sampleId, readFunc = d3.csv
 ) {
     const table = await readFunc(tableFile);
 
-    // restructure and convert counts to floats
+    const tableMap = new Map();
     for (let sample of table) {
-        sample.features = {};
+        const features = new Map();
+
         for (let attr in sample) {
-            if (attr != sampleId && attr != 'features') {
-                sample.features[attr] = Number(sample[attr]);
-                delete sample[attr];
+            if (attr != sampleId) {
+                let abundance = Number(sample[attr]);
+                if (abundance == 0) {
+                    continue;
+                }
+                features.set(attr, abundance);
             }
         }
+        tableMap.set(sample.id, {id: sample.id, features: features});
     }
 
-    return table;
+    return tableMap;
 }
 
 /**

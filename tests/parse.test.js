@@ -44,22 +44,22 @@ test('parse feature table', async () => {
         ];
     };
 
-    const exp = [
-        {'id': '1', 'features': {'a': 0, 'b': 2, 'c': 3}},
-        {'id': '2', 'features': {'a': 7, 'b': 4, 'c': 100}},
-        {'id': '3', 'features': {'a': 0, 'b': 0, 'c': 0}},
-    ];
+    const tableMap = await parseFeatureTable('table.csv', 'id', mockedReadFunc);
 
-    const obs = await parseFeatureTable('table.csv', 'id', mockedReadFunc);
+    expect(tableMap.size).toEqual(3);
 
-    expect(exp).toEqual(obs);
+    expect(tableMap.get('1').id).toEqual('1');
+    expect( Array.from(tableMap.get('1').features.keys()) ).toEqual(['b', 'c']);
+    expect(tableMap.get('1').features.get('b')).toEqual(2);
+    expect(tableMap.get('2').features.get('a')).toEqual(7);
+
 });
 
 test('merge metadata', () => {
     const table = [
-        {'id': '1', 'features': {'a': 0, 'b': 2, 'c': 3}},
-        {'id': '2', 'features': {'a': 7, 'b': 4, 'c': 100}},
-        {'id': '3', 'features': {'a': 0, 'b': 0, 'c': 0}},
+        { 'id': '1', 'features': new Map([['a', 0], ['b', 2], ['c', 3]]) },
+        { 'id': '2', 'features': new Map([['a', 7], ['b', 4], ['c', 100]]) },
+        { 'id': '3', 'features': new Map([['a', 0], ['b', 0], ['c', 0]]) },
     ];
     const metadata = [
         {'id': '1', 'week': 1, 'age': 20},
@@ -69,19 +69,19 @@ test('merge metadata', () => {
     const exp = [
         {
             'id': '1',
-            'features': {'a': 0, 'b': 2, 'c': 3},
+            'features': new Map([['a', 0], ['b', 2], ['c', 3]]),
             'week': 1,
             'age': 20
         },
         {
             'id': '2',
-            'features': {'a': 7, 'b': 4, 'c': 100},
+            'features': new Map([['a', 7], ['b', 4], ['c', 100]]),
             'week': 2,
             'age': 40
         },
         {
             'id': '3',
-            'features': {'a': 0, 'b': 0, 'c': 0},
+            'features': new Map([['a', 0], ['b', 0], ['c', 0]]),
             'week': 3,
             'age': ''
         },

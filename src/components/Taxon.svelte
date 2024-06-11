@@ -2,7 +2,7 @@
     import { get } from 'svelte/store'
 
     import {
-        selectedTaxon, hubTaxon, taxonomyLog, viewLevel, taxonomy
+        selectedTaxon, hubTaxon, taxonomyLog, viewLevel, taxonomy, table
     } from '../stores/stores.js';
 
     export let taxon;
@@ -19,20 +19,34 @@
     function toggleTaxonProperty(property) {
         return async () => {
             // toggle property in taxonomy and rerender
-            const newValue = taxonomy.toggleProperty(taxon.id, property);
-            taxonomy.render(get(viewLevel));
+            let localTaxon = taxon;
+            localTaxon[property] = !localTaxon[property];
+            taxonomy.updateTaxon(localTaxon);
+
+            if (property == 'expand') {
+                taxonomy.renderExpansion(localTaxon);
+            } else if (property == 'group') {
+                taxonomy.renderGrouping(localTaxon);
+            } else if (property == 'filter') {
+                // todo
+                taxonomy.renderFilter(localTaxon);
+            }
+
+            // TODO: rerender table
+
 
             // TODO: put this logic in log store
             // sync action with log
-            let logTaxon = structuredClone(taxon);
-            logTaxon.action = property;
-            if (newValue == false) {
-                taxonomyLog.update((log) => {
-                    return log.filter((item) => item.id != logTaxon.id);
-                });
-            } else {
-                taxonomyLog.update((log) => [logTaxon, ...log]);
-            }
+            // let { updatedTaxon, _ } = taxonomy.getTaxon(localTaxon.id);
+            // let logTaxon = structuredClone(taxon);
+            // logTaxon.action = property;
+            // if (newValue == false) {
+            //     taxonomyLog.update((log) => {
+            //         return log.filter((item) => item.id != logTaxon.id);
+            //     });
+            // } else {
+            //     taxonomyLog.update((log) => [logTaxon, ...log]);
+            // }
         }
     }
 
