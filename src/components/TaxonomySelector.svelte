@@ -26,7 +26,7 @@
 
     <p>taxa at level {$viewLevel}</p>
     <div class="currentLevel">
-        <CurrentLevel currentLevel={true} />
+        <CurrentLevel />
     </div>
 
     <p>children</p>
@@ -36,7 +36,7 @@
 
     <p>info</p>
     <div class="info">
-        <TaxonInfo taxon={$selectedTaxon} />
+        <TaxonInfo />
     </div>
 
 </div>

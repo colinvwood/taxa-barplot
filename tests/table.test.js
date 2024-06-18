@@ -17,26 +17,25 @@ test('caclulateTaxonomyStats', async () => {
         {id: 'a2;b1', name: 'b1', parent: 'a2', level: 2},
         {id: 'a2;b1;c1', name: 'c1', parent: 'a2;b1', level: 3},
     ];
-    const table = [
-        {
-            id: '1',
-            features: new Map([
-                ['a1;b1;c1', 0.2], ['a1;b1;c2', 0.5], ['a2;b1;c1', 0.3]
-            ])
-        },
-        {
-            id: '2',
-            features: new Map([
-                ['a1;b1;c2', 0.5], ['a2;b1;c1', 0.5]
-            ])
-        },
-        {
-            'id': '3',
-            features: new Map([
-                ['a1;b1;c1', 0.8], ['a1;b1;c2', 0.1], ['a2;b1;c1', 0.1]
-            ])
-        },
-    ];
+    const sample1 = {
+        id: '1',
+        features: new Map([
+            ['a1;b1;c1', 0.2], ['a1;b1;c2', 0.5], ['a2;b1;c1', 0.3]
+        ])
+    };
+    const sample2 = {
+        id: '2',
+        features: new Map([
+            ['a1;b1;c2', 0.5], ['a2;b1;c1', 0.5]
+        ])
+    };
+    const sample3 = {
+        'id': '3',
+        features: new Map([
+            ['a1;b1;c1', 0.8], ['a1;b1;c2', 0.1], ['a2;b1;c1', 0.1]
+        ])
+    };
+    const table = new Map([['1', sample1], ['2', sample2], ['3', sample3]]);
 
     let exp = [
         {id: 'a1', name: 'a1', parent: null, level: 1, prevalence: '1.000',
@@ -56,7 +55,6 @@ test('caclulateTaxonomyStats', async () => {
     ];
 
     let obs = await calculateTaxonomyStats(taxonomy, table);
-
     expect(obs[0].prevalence).toEqual('1.000');
     expect(obs[0].averageAbundance).toEqual('0.700');
 
@@ -117,7 +115,7 @@ test('renderTable', async () => {
     delete taxonomy[1].filter;
 
     // grouping
-    let grouped = expandOrGroupTo(
+    let grouped = await expandOrGroupTo(
         structuredClone(taxonomy), 'a1', 'group', 3
     );
     taxonomyView = renderCurrentView(grouped.taxonomy, 3);
@@ -129,7 +127,7 @@ test('renderTable', async () => {
 
 
     // expanding
-    let expanded = expandOrGroupTo(
+    let expanded = await expandOrGroupTo(
         structuredClone(taxonomy), 'a1;b1', 'expand', 3
     );
     taxonomyView = renderCurrentView(expanded.taxonomy, 2);

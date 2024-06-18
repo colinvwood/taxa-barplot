@@ -3,7 +3,6 @@
     import {
         taxonomy, taxonomyLog, viewLevel
     } from '../stores/stores.js';
-    import { renderTaxonomy } from '../util/taxonomy.js';
 
     export let taxon;
 

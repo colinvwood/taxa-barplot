@@ -1,18 +1,17 @@
 <script>
     import Taxon from './Taxon.svelte';
 
-    import { taxonomy, hubTaxon } from '../stores/stores.js';
+    import { taxonomy, selectedTaxon } from '../stores/stores.js';
 
     export let subsetter;
-    export let currentLevel = false;
 
-    $: taxa = subsetter($taxonomy, $hubTaxon)
+    $: taxa = subsetter($taxonomy, $selectedTaxon)
 </script>
 
 {#if taxa != null && taxa.constructor === Array}
     {#each taxa as taxon}
-        <Taxon {taxon} {currentLevel} />
+        <Taxon {taxon} />
     {/each}
 {:else if taxa != null}
-    <Taxon taxon={taxa} {currentLevel} />
+    <Taxon taxon={taxa} />
 {/if}

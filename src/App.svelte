@@ -1,27 +1,31 @@
 <script>
+    import { get } from 'svelte/store';
     import { parseTaxonomy, parseFeatureTable }  from './util/parse.js';
     import { calculateTaxonomyStats } from './util/table.js';
-    import { taxonomy, table } from './stores/stores.js';
+    import { taxonomy, table, taxonomyChanges } from './stores/stores.js';
 
+    import Plot from './components/Plot.svelte';
     import TaxonomySelector from './components/TaxonomySelector.svelte';
     import TaxonomyLog from './components/TaxonomyLog.svelte';
 
-    let tableRecords = parseFeatureTable('table.csv', 'sample-id');
-    let taxonomyRecords = parseTaxonomy('taxonomy.tsv');
+    let parsedTable = parseFeatureTable('table.csv', 'sample-id');
+    let parsedTaxonomy = parseTaxonomy('taxonomy.tsv');
 
-    Promise.all([tableRecords, taxonomyRecords]).then((values) => {
-        let tableRecords = values[0];
-        table.set(tableRecords);
+    Promise.all([parsedTable, parsedTaxonomy]).then((values) => {
+        let parsedTable = values[0];
+        table.set(parsedTable);
 
-        let taxonomyRecords = values[1];
-        return calculateTaxonomyStats(taxonomyRecords, tableRecords);
+        let parsedTaxonomy = values[1];
+        return calculateTaxonomyStats(parsedTaxonomy, parsedTable);
     })
-    .then((taxonomyRecordsWithStats) => {
-        taxonomy.set(taxonomyRecordsWithStats);
+    .then((taxonomyWithStats) => {
+        taxonomy.set(taxonomyWithStats);
+        table.render(get(taxonomy), 1, get(taxonomyChanges));
     });
 
 </script>
 
+<Plot />
 <TaxonomySelector />
 <TaxonomyLog />
 

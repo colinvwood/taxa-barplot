@@ -79,119 +79,51 @@ export function getDescendants(taxonomy, taxon) {
     });
 }
 
-function getDescendantsAtLevel(taxonomy, taxon, level) {
+export function getDescendantsAtLevel(taxonomy, taxon, level) {
+    console.log('taxonomy', taxonomy, 'taxon', taxon, 'level', level);
     const descendants = getDescendants(taxonomy, taxon);
     return descendants.filter(t => t.level == level);
 }
 
+function getAncestorAtLevel(taxonomy, taxon, level) {
+    const ancestorId = taxon.id.split(';').slice(0, level).join(';');
+    const ancestorTaxon = taxonomy.filter(t => t.id == ancestorId);
+    if (ancestorTaxon.length > 1) {
+        throw new Error('More than one ancestor found for taxon.')
+    } else if (ancestorTaxon.length < 1) {
+        throw new Error('Ancestor taxon not found.');
+    }
 
-function getSubTree(taxonomy, taxon, level) {
-    const descendants = getDescendants(taxonomy, taxon);
-    return descendants.filter(t => t.level >= level);
+    return ancestorTaxon[0];
 }
 
-function flagsSet(taxon) {
-    return (
-        taxon.groupTo || taxon.expandTo || taxon.groupedTo ||
-        taxon.expandedTo
-    );
-}
+export function renderCurrentView(taxonomy, level, changes) {
+    const taxaAtLevel = taxonomy.filter(t => t.level == level);
 
-function validateChange(taxonomy, taxon, level) {
-    if (flagsSet(taxon)) {
-        return false;
-    }
-
-    if (
-        (taxon.groupTo && taxon.groupTo <= taxon.level) ||
-        (taxon.expandTo && taxon.expandTo <= taxon.level)
-    ) {
-        return false;
-    }
-
-    const subTree = getSubTree(taxonomy, taxon, level);
-    const violators = subTree.filter(t => flagsSet(t));
-    if (violators.length > 0) {
-        return false;
-    }
-
-    return true;
-
-}
-
-export function expandOrGroupTo(taxonomy, taxonId, action, level=0) {
-    // set proper attributes according to action
-    let rootProp;
-    let descendantProp;
-    if (action == 'group') {
-        rootProp = 'groupTo';
-        descendantProp = 'groupedTo'
-    } else if (action == 'expand') {
-        rootProp = 'expandTo';
-        descendantProp = 'expandedTo';
-    }
-
-    let taxon = getTaxonById(taxonomy, taxonId);
-    let rootMark;
-    let descendantMark;
-    if (level == 0) {
-        // undo grouping/expansion
-        rootMark = 0;
-        descendantMark = 0;
-        level = taxon[rootProp];
-    } else {
-        // make sure grouping is valid
-        if (!validateChange(taxonomy, taxon, level)) {
-            return {taxonomy, diff: false};
-        }
-
-        rootMark = level;
-        descendantMark = taxon.level;
-    }
-
-    // get taxa at target level to be grouped
-    const descendantsAtLevel = getDescendantsAtLevel(taxonomy, taxon, level);
-
-    // make set of affected taxa for fast lookup
-    let descendantsSet = new Set(descendantsAtLevel.map(d => d.id));
-    descendantsSet.add(taxon.id);
-
-    // add untouched taxa back to taxonomy
-    let newTaxonomy = [];
-    for (let taxon of taxonomy) {
-        if (!descendantsSet.has(taxon.id)) {
-            newTaxonomy.push(taxon);
+    let view =  new Set();
+    for (const taxon of taxaAtLevel) {
+        if (changes.filters.has(taxon.id)) {
+            continue;
+        } else if (changes.groupings.has(taxon.id)) {
+            console.log('group detected', taxon.id);
+            const groupedToLevel = changes.groupings.get(taxon.id);
+            const ancestor = getAncestorAtLevel(
+                taxonomy, taxon, groupedToLevel
+            );
+            console.log('grouped to level is', groupedToLevel, 'ancestor is', ancestor);
+            view.add(ancestor);
+        } else if (changes.expansions.has(taxon.id)) {
+            const expandedToLevel = changes.expansions.get(taxon.id);
+            const descendants = getDescendantsAtLevel(
+                taxonomy, taxon, expandedToLevel
+            );
+            for (const descendant of descendants) {
+                view.add(descendant);
+            }
+        } else {
+            view.add(taxon);
         }
     }
 
-    // update current grouping taxon and add to new taxonomy
-    taxon[rootProp] = rootMark;
-    newTaxonomy.push(taxon);
-
-    // update and add groupedTo taxa to new taxonomy
-    for (let descendant of descendantsAtLevel) {
-        descendant[descendantProp] = descendantMark;
-        newTaxonomy.push(descendant);
-    }
-
-    if (!(taxonomy.length == newTaxonomy.length)) {
-        throw new Error('expected updated taxonomy to be same length');
-    }
-
-    return {taxonomy: newTaxonomy, diff: true}
-}
-
-
-export function renderCurrentView(taxonomy, renderLevel) {
-    return taxonomy.filter(taxon => {
-        if (taxon.filter) {
-            return false;
-        }
-        if (taxon.level == renderLevel && !flagsSet(taxon)) {
-            return true;
-        }
-        return (
-            taxon.expandedTo == renderLevel || taxon.groupTo == renderLevel
-        );
-    });
+    return Array.from(view);
 }

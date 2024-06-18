@@ -19,7 +19,9 @@ export async function parseFeatureTable(
                 features.set(attr, abundance);
             }
         }
-        tableMap.set(sample.id, {id: sample.id, features: features});
+        tableMap.set(
+            sample[sampleId], {id: sample[sampleId], features: features}
+        );
     }
 
     return tableMap;
@@ -35,8 +37,10 @@ export async function parseFeatureTable(
  *         parent: 'd__Bacteria;p__Bacilota',
  *         level: 3,
  *         filter: false,
- *         group: false,
- *         expand: false
+ *         groupTo: 0,
+ *         groupedTo: 0,
+ *         expandTo: 0,
+ *         expandedTo: 0,
  *     }
  *
  * @param {String} taxonomyFile - filepath of the taxonomy file
@@ -76,10 +80,11 @@ export async function parseTaxonomy(
                     name,
                     parent,
                     level: i + 1,
-                    viewLevel: i + 1,
                     filter: false,
-                    group: false,
-                    expand: false
+                    groupTo: 0,
+                    groupedTo: 0,
+                    expandTo: 0,
+                    expandedTo: 0,
                 });
             }
         }
