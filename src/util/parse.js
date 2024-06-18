@@ -16,7 +16,13 @@ export async function parseFeatureTable(
                 if (abundance == 0) {
                     continue;
                 }
-                features.set(attr, abundance);
+                if (!features.has(attr)) {
+                    features.set(attr, abundance);
+                } else {
+                    // two features one classification
+                    const currentAbun = features.get(attr);
+                    features.set(currentAbun + abundance);
+                }
             }
         }
         tableMap.set(

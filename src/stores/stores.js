@@ -133,7 +133,6 @@ function createTableStore() {
     let { subscribe, update, set } = table;
 
     const render = async (taxonomy, level, changes) => {
-        console.log('table.render run');
         return await renderTable(get(table), taxonomy, level, changes);
     }
 

@@ -18,10 +18,11 @@ export function assignColors(renderedTable, colorScheme) {
             colorIndex = 0;
         }
 
-        feature.color = colorScheme[colorIndex];
+        let color = colorScheme[colorIndex];
+        feature.color = color;
         colorIndex++;
 
-        featureToColor.set(feature.id, colorScheme[colorIndex]);
+        featureToColor.set(feature.id, color);
     }
 
     // use map to assign features form rest of samples
@@ -36,16 +37,19 @@ export function assignColors(renderedTable, colorScheme) {
                     // get random color
                     let color = getRandomColor(colorScheme);
                     feature.color = color;
+                    previousColor = color;
                     featureToColor.set(feature.id, color);
                 } else {
                     // get color as far away from previous color as possible
                     // to mitigate two taxa of same color touching
                     let previousColorIndex = colorScheme.indexOf(previousColor);
-                    let newIndex =
-                        ((previousColorIndex + colorScheme.length) / 2) %
-                        colorScheme.length;
-                    feature.color = colorScheme[newIndex];
-                    featureToColor.set(feature.id, colorScheme[newIndex]);
+                    let newIndex = Math.floor(
+                        previousColorIndex + colorScheme.length / 2
+                    ) % colorScheme.length;
+                    let color = colorScheme[newIndex];
+                    feature.color = color;
+                    previousColor = color;
+                    featureToColor.set(feature.id, color);
                 }
             }
         }

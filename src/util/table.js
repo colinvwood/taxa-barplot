@@ -75,7 +75,7 @@ export async function renderTable(table, taxonomy, level, changes) {
     // color features
     tableView = assignColors(tableView, 'marine');
 
-    // calculate cumulative abundances
+    // TODO: sample sorting
 
     return tableView;
 }

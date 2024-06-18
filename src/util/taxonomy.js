@@ -80,7 +80,6 @@ export function getDescendants(taxonomy, taxon) {
 }
 
 export function getDescendantsAtLevel(taxonomy, taxon, level) {
-    console.log('taxonomy', taxonomy, 'taxon', taxon, 'level', level);
     const descendants = getDescendants(taxonomy, taxon);
     return descendants.filter(t => t.level == level);
 }
@@ -105,12 +104,10 @@ export function renderCurrentView(taxonomy, level, changes) {
         if (changes.filters.has(taxon.id)) {
             continue;
         } else if (changes.groupings.has(taxon.id)) {
-            console.log('group detected', taxon.id);
             const groupedToLevel = changes.groupings.get(taxon.id);
             const ancestor = getAncestorAtLevel(
                 taxonomy, taxon, groupedToLevel
             );
-            console.log('grouped to level is', groupedToLevel, 'ancestor is', ancestor);
             view.add(ancestor);
         } else if (changes.expansions.has(taxon.id)) {
             const expandedToLevel = changes.expansions.get(taxon.id);
