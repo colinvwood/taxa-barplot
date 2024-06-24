@@ -14,9 +14,19 @@
         }
     }
 
+    const abundanceAccessor = (abundances) => {
+        // NOTE: metadata accessor will take `sample` object;
+        // abundance accessors (like this one) will take id -> abundance map
+        const taxon = 'k__Bacteria;p__Bacteroidetes';
+        if (!abundances.has(taxon)) {
+            return 0;
+        }
+        return abundances.get(taxon);
+    }
+
     // let tableView;
     $: tableView = table.render(
-        get(taxonomy), $viewLevel, $taxonomyChanges
+        get(taxonomy), $viewLevel, $taxonomyChanges, abundanceAccessor
     );
 
 </script>

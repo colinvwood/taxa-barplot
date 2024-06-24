@@ -1,4 +1,6 @@
-import { getDescendants, getChildren } from './taxonomy.js';
+import {
+    getDescendants, getDescendantsAtLevel, getChildren
+} from './taxonomy.js';
 import { assignColors } from './colors.js';
 
 /**
@@ -7,11 +9,14 @@ import { assignColors } from './colors.js';
  * viewed at `level` for each sample.
  *
  */
-export async function renderTable(table, taxonomy, level, changes) {
+export async function renderTable(
+    table, taxonomy, level, changes, sortingAccessor
+) {
     let tableView = [];
     for (const sampleId of table.keys()) {
-        const sampleAbundances = table.get(sampleId).features;
-        let renderedAbundances = new Map();
+        const sample = table.get(sampleId);
+        const sampleAbundances = sample.features;
+        const renderedAbundances = new Map();
 
         for (const feature of sampleAbundances.keys()) {
             const featureLevel = feature.split(';').length;
@@ -59,10 +64,12 @@ export async function renderTable(table, taxonomy, level, changes) {
         for (const [taxon, abundance] of renderedAbundances.entries()) {
             renderedSample.features.push({id: taxon, abundance: abundance});
         }
+        renderedSample.sorter = sortingAccessor(renderedAbundances);
 
         // sort sample features by decreasing average abundance
+        const averageAbundances = getAverageAbundancesAtLevel(taxonomy, level);
         renderedSample.features = renderedSample.features.sort((a, b) => {
-            return b.averageAbundance - a.averageAbundance;
+            return averageAbundances.get(b.id) - averageAbundances.get(a.id);
         });
 
         // calculate cumulative abundance for sample
@@ -75,10 +82,14 @@ export async function renderTable(table, taxonomy, level, changes) {
     // color features
     tableView = assignColors(tableView, 'marine');
 
-    // TODO: sample sorting
+    // sort samples
+    tableView = tableView.sort((first, second) => {
+        return first.sorter - second.sorter;
+    });
 
     return tableView;
 }
+
 
 /**
  * Return all leaf descendants of `taxon`. If `taxon` is itself a leaf,
@@ -136,7 +147,9 @@ export async function calculateTaxonomyStats(taxonomy, table) {
             }
             return false;
         });
-        taxon.prevalence = (presentSamples.length / samples.length).toFixed(3);
+        taxon.prevalence = Number(
+            (presentSamples.length / samples.length).toFixed(3)
+        );
 
         // calculate average abundance
         let sumAbuns = presentSamples.map(sample => {
@@ -147,7 +160,7 @@ export async function calculateTaxonomyStats(taxonomy, table) {
             return acc + abun;
         }, 0);
 
-        taxon.averageAbundance = (sum / samples.length).toFixed(3);
+        taxon.averageAbundance = Number((sum / samples.length).toFixed(3));
     }
 
     return taxonomy;
@@ -170,4 +183,41 @@ function getSumLeafAbundances(table, sampleId, leaves) {
         }
     }
     return sum;
+}
+
+function getAverageAbundancesAtLevel(taxonomy, level) {
+    const averageAbundances = new Map();
+    for (let taxon of taxonomy) {
+        if (taxon.level > level) {
+            continue;
+        } else if (taxon.level == level) {
+            averageAbundances.set(taxon.id, taxon.averageAbundance);
+        } else if (taxon.level < level) {
+            // get sum of average abundance of descendants at level
+            // and subtract from taxon's average abundance
+            const descendants = getDescendantsAtLevel(taxonomy, taxon, level);
+            if (descendants.length > 0) {
+                let sumDescendantsAbun = 0;
+                for (let descendant of descendants) {
+                    console.log('descendant avg abundance', descendant.averageAbundance)
+                    sumDescendantsAbun += descendant.averageAbundance;
+                }
+                if (taxon.id == 'k__Bacteria') {
+                    console.log(
+                        'bacteria found avg abun', taxon.averageAbundance,
+                        'after subtracting', taxon.averageAbundance - sumDescendantsAbun
+                    );
+                    console.log('sum desc abun', sumDescendantsAbun);
+                    console.log('descendants', descendants);
+                }
+                averageAbundances.set(
+                    taxon.id, taxon.averageAbundance - sumDescendantsAbun
+                );
+            } else {
+                averageAbundances.set(taxon.id, taxon.averageAbundance);
+            }
+        }
+    }
+
+    return averageAbundances;
 }

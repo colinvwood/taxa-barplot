@@ -132,8 +132,10 @@ function createTableStore() {
     const table = writable(new Map());
     let { subscribe, update, set } = table;
 
-    const render = async (taxonomy, level, changes) => {
-        return await renderTable(get(table), taxonomy, level, changes);
+    const render = async (taxonomy, level, changes, accessor) => {
+        return await renderTable(
+            get(table), taxonomy, level, changes, accessor
+        );
     }
 
     return {
