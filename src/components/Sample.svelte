@@ -1,28 +1,36 @@
 <script>
     import { get } from 'svelte/store';
-    import { table } from '../stores/stores.js';
+    import { table, taxonomy, hoveredTaxon } from '../stores/stores.js';
     export let sample;
     export let sampleIndex;
     export let dimensions;
 
-    const sampleWidth = 50;
+    const sampleWidth = 40;
 
     let x = sampleWidth * sampleIndex;
 
-
     function handleHover(event) {
-        console.log('id', event.target.dataset['featureId']);
-        console.log('features', sample.features);
+        const taxonId = event.target.dataset['featureId'];
+        const taxon = structuredClone(taxonomy.getTaxon(taxonId));
+
+        const sampleId = event.target.dataset['sampleId'];
+        const sample = structuredClone(table.getSample(sampleId));
+        delete sample.features;
+        sample.sampleId = sample.id;
+        delete sample.id;
+
+        const abundance = event.target.dataset['abundance'];
+
+        hoveredTaxon.set({...taxon, ...sample, abundance});
     }
-    </script>
+</script>
 
 <g>
     {#each sample.features as feature}
-        {#if !feature.color}
-            {console.log(feature)}
-        {/if}
         <rect
             data-feature-id={feature.id}
+            data-sample-id={sample.id}
+            data-abundance={feature.abundance}
             x={x}
             y={(feature.cumAbun - feature.abundance) * dimensions.height}
             height={feature.abundance * dimensions.height}

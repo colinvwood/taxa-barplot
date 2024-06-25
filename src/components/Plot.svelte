@@ -1,7 +1,9 @@
 <script>
     import { get } from 'svelte/store';
 
+    import HoveredTaxon from './HoveredTaxon.svelte';
     import Sample from './Sample.svelte';
+
     import {
         table, taxonomy, viewLevel, taxonomyChanges
     } from '../stores/stores.js';
@@ -40,6 +42,7 @@
         {/each}
     {/await}
 </svg>
+<HoveredTaxon />
 
 <style>
     svg {

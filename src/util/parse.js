@@ -42,11 +42,6 @@ export async function parseFeatureTable(
  *         name: 'c__Bacilli',
  *         parent: 'd__Bacteria;p__Bacilota',
  *         level: 3,
- *         filter: false,
- *         groupTo: 0,
- *         groupedTo: 0,
- *         expandTo: 0,
- *         expandedTo: 0,
  *     }
  *
  * @param {String} taxonomyFile - filepath of the taxonomy file
@@ -86,11 +81,6 @@ export async function parseTaxonomy(
                     name,
                     parent,
                     level: i + 1,
-                    filter: false,
-                    groupTo: 0,
-                    groupedTo: 0,
-                    expandTo: 0,
-                    expandedTo: 0,
                 });
             }
         }

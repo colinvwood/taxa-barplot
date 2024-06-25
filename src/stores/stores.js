@@ -132,6 +132,10 @@ function createTableStore() {
     const table = writable(new Map());
     let { subscribe, update, set } = table;
 
+    const getSample = (id) => {
+        return get(table).get(id);
+    }
+
     const render = async (taxonomy, level, changes, accessor) => {
         return await renderTable(
             get(table), taxonomy, level, changes, accessor
@@ -142,11 +146,13 @@ function createTableStore() {
         subscribe,
         update,
         set,
+        getSample,
         render,
     }
 }
 export const table = createTableStore();
 
 export const selectedTaxon = writable({});
+export const hoveredTaxon = writable({});
 
 export const taxonomyLog = writable([]);

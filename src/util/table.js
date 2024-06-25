@@ -199,16 +199,7 @@ function getAverageAbundancesAtLevel(taxonomy, level) {
             if (descendants.length > 0) {
                 let sumDescendantsAbun = 0;
                 for (let descendant of descendants) {
-                    console.log('descendant avg abundance', descendant.averageAbundance)
                     sumDescendantsAbun += descendant.averageAbundance;
-                }
-                if (taxon.id == 'k__Bacteria') {
-                    console.log(
-                        'bacteria found avg abun', taxon.averageAbundance,
-                        'after subtracting', taxon.averageAbundance - sumDescendantsAbun
-                    );
-                    console.log('sum desc abun', sumDescendantsAbun);
-                    console.log('descendants', descendants);
                 }
                 averageAbundances.set(
                     taxon.id, taxon.averageAbundance - sumDescendantsAbun

@@ -5,7 +5,7 @@
     import { selectedTaxon, viewLevel } from '../stores/stores.js';
 
     import TaxonList from './TaxonList.svelte';
-    import TaxonInfo from './TaxonInfo.svelte';
+    import SelectedTaxon from './SelectedTaxon.svelte';
     import CurrentLevel from './CurrentLevel.svelte';
 
 </script>
@@ -36,7 +36,7 @@
 
     <p>info</p>
     <div class="info">
-        <TaxonInfo />
+        <SelectedTaxon />
     </div>
 
 </div>

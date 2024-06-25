@@ -51,7 +51,7 @@
 
 
 
-    </script>
+</script>
 
 <p>Name: {$selectedTaxon.name}</p>
 <p>ID: {$selectedTaxon.id}</p>
