@@ -9,9 +9,7 @@ import { assignColors } from './colors.js';
  * viewed at `level` for each sample.
  *
  */
-export async function renderTable(
-    table, taxonomy, level, changes, sortingAccessor
-) {
+export async function renderTable(table, taxonomy, changes, level) {
     let tableView = [];
     for (const sampleId of table.keys()) {
         const sample = table.get(sampleId);
@@ -64,7 +62,6 @@ export async function renderTable(
         for (const [taxon, abundance] of renderedAbundances.entries()) {
             renderedSample.features.push({id: taxon, abundance: abundance});
         }
-        renderedSample.sorter = sortingAccessor(renderedAbundances);
 
         // sort sample features by decreasing average abundance
         const averageAbundances = getAverageAbundancesAtLevel(taxonomy, level);
@@ -78,14 +75,6 @@ export async function renderTable(
         // add rendered sample object to view
         tableView.push(renderedSample);
     }
-
-    // color features
-    tableView = assignColors(tableView, 'marine');
-
-    // sort samples
-    tableView = tableView.sort((first, second) => {
-        return first.sorter - second.sorter;
-    });
 
     return tableView;
 }

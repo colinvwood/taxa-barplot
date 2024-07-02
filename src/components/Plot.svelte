@@ -5,8 +5,9 @@
     import Sample from './Sample.svelte';
 
     import {
-        table, taxonomy, viewLevel, taxonomyChanges
+        tableStore, table, rendered, taxonomy, viewLevel, taxonomyChanges
     } from '../stores/stores.js';
+    import { customColors } from '../stores/colors.js';
 
     let dimensions = {};
     $: {
@@ -26,9 +27,8 @@
         return abundances.get(taxon);
     }
 
-    // let tableView;
-    $: tableView = table.render(
-        get(taxonomy), $viewLevel, $taxonomyChanges, abundanceAccessor
+    $: tableStore.render(
+        get(taxonomy), $taxonomyChanges, $viewLevel, 'marine', $customColors
     );
 
 </script>
@@ -36,11 +36,9 @@
 <svg
     style="width: {dimensions.width}px; height: {dimensions.height}px;"
 >
-    {#await tableView then view}
-        {#each view as sample, index}
-            <Sample {sample} sampleIndex={index} {dimensions} />
-        {/each}
-    {/await}
+    {#each $rendered as sample, index}
+        <Sample {sample} sampleIndex={index} {dimensions} />
+    {/each}
 </svg>
 <HoveredTaxon />
 

@@ -1,11 +1,11 @@
-const colorSchemes = {
+export const colorSchemes = {
     marine:  [
-        '#d9ed92', '#b5e48c', '#99d98c', '#76c893', '#52b69a', '#34a0a4', '#168aad',
-        '#1a759f', '#1e6091', '#184e77'
+        '#d9ed92', '#b5e48c', '#99d98c', '#76c893', '#52b69a', '#34a0a4',
+        '#168aad', '#1a759f', '#1e6091', '#184e77'
     ],
 };
 
-export function assignColors(renderedTable, colorScheme) {
+export function assignColors(renderedTable, colorScheme, customColors) {
     colorScheme = colorSchemes[colorScheme];
 
     // map of feature.id -> assigned color
@@ -14,6 +14,12 @@ export function assignColors(renderedTable, colorScheme) {
     // use first sample to cycle through colors
     let colorIndex = 0;
     for (let feature of renderedTable[0].features) {
+        if (customColors.has(feature.id)) {
+            feature.color = customColors.get(feature.id);
+            featureToColor.set(feature.id, customColors.get(feature.id));
+            continue;
+        }
+
         if (colorIndex == colorScheme.length) {
             colorIndex = 0;
         }
@@ -32,6 +38,11 @@ export function assignColors(renderedTable, colorScheme) {
             if (featureToColor.has(feature.id)) {
                 feature.color = featureToColor.get(feature.id);
                 previousColor = feature.color;
+            } else if (customColors.has(feature.id)) {
+                let color = customColors.get(feature.id);
+                feature.color = color;
+                previousColor = color;
+                featureToColor.set(feature.id, color);
             } else {
                 if (previousColor == null) {
                     // get random color
@@ -56,9 +67,9 @@ export function assignColors(renderedTable, colorScheme) {
     }
 
     // TODO: also return featureToColor for legend?
-    return renderedTable;
+    const coloredTable = renderedTable;
+    return coloredTable;
 }
-
 
 function getRandomColor(colorScheme) {
     const index = Math.floor(Math.random() * colorScheme.length);

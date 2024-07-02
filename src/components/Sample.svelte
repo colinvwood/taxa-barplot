@@ -1,6 +1,7 @@
 <script>
-    import { get } from 'svelte/store';
-    import { table, taxonomy, hoveredTaxon } from '../stores/stores.js';
+    import { tableStore, taxonomy } from '../stores/stores.js';
+    import { hoveredTaxon } from '../stores/hoveredTaxon.js';
+
     export let sample;
     export let sampleIndex;
     export let dimensions;
@@ -10,27 +11,35 @@
     let x = sampleWidth * sampleIndex;
 
     function handleHover(event) {
-        const taxonId = event.target.dataset['featureId'];
-        const taxon = structuredClone(taxonomy.getTaxon(taxonId));
+        if ($hoveredTaxon.frozen) {
+            return;
+        }
+        hoveredTaxon.setTaxon(event.target.dataset, taxonomy, tableStore);
+    }
 
-        const sampleId = event.target.dataset['sampleId'];
-        const sample = structuredClone(table.getSample(sampleId));
-        delete sample.features;
-        sample.sampleId = sample.id;
-        delete sample.id;
+    function handleClick(event) {
+        const clickedId = event.target.dataset['taxonId'];
+        const previousId = $hoveredTaxon.taxon.id;
 
-        const abundance = event.target.dataset['abundance'];
-
-        hoveredTaxon.set({...taxon, ...sample, abundance});
+        if (!$hoveredTaxon.frozen) {
+            hoveredTaxon.setFrozen(true);
+        } else {
+            hoveredTaxon.setFrozen(false);
+            handleHover(event);
+            if (clickedId != previousId) {
+                hoveredTaxon.setFrozen(true);
+            }
+        }
     }
 </script>
 
 <g>
     {#each sample.features as feature}
         <rect
-            data-feature-id={feature.id}
+            data-taxon-id={feature.id}
             data-sample-id={sample.id}
             data-abundance={feature.abundance}
+            data-color={feature.color}
             x={x}
             y={(feature.cumAbun - feature.abundance) * dimensions.height}
             height={feature.abundance * dimensions.height}
@@ -38,6 +47,7 @@
             taxon={feature.id}
             fill={feature.color}
             on:mouseover={handleHover}
+            on:click={handleClick}
         />
     {/each}
 </g>

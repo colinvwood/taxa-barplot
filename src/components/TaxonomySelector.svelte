@@ -2,7 +2,7 @@
     import {
         getParent, getSiblings, getChildren
     } from '../util/taxonomy.js';
-    import { selectedTaxon, viewLevel } from '../stores/stores.js';
+    import { viewLevel } from '../stores/stores.js';
 
     import TaxonList from './TaxonList.svelte';
     import SelectedTaxon from './SelectedTaxon.svelte';
