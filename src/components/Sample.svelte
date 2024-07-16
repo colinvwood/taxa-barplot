@@ -1,5 +1,6 @@
 <script>
-    import { tableStore, taxonomy } from '../stores/stores.js';
+    import { taxonomy } from '../stores/taxonomy.js';
+    import { tableStore } from '../stores/table.js';
     import { hoveredTaxon } from '../stores/hoveredTaxon.js';
 
     export let sample;

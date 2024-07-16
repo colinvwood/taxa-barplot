@@ -1,8 +1,8 @@
 <script>
     import { get } from 'svelte/store';
     import {
-        taxonomy, selectedTaxon, viewLevel, taxonomyChanges
-    } from '../stores/stores.js';
+        taxonomy, selectedTaxon, taxonomyChanges
+    } from '../stores/taxonomy.js';
 
     let level = 0;
     let grouped = false;

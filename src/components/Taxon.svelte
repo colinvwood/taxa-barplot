@@ -1,7 +1,5 @@
 <script>
-    import {
-        selectedTaxon, taxonomyLog, viewLevel, taxonomy, table
-    } from '../stores/stores.js';
+    import { selectedTaxon } from '../stores/taxonomy.js';
 
     export let taxon;
 

@@ -2,7 +2,7 @@
     import { get } from 'svelte/store';
     import {
         taxonomy, taxonomyLog, viewLevel
-    } from '../stores/stores.js';
+    } from '../stores/taxonomy.js';
 
     export let taxon;
 

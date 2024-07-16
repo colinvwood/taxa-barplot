@@ -1,6 +1,5 @@
 import { writable, get } from 'svelte/store';
 
-
 function hoveredTaxonStore() {
     const hoveredTaxon = writable({
         taxon: {},

@@ -1,12 +1,8 @@
-import { writable, get, derived } from 'svelte/store';
+import { writable, get } from 'svelte/store';
 
 import { renderCurrentView, getDescendantsAtLevel } from '../util/taxonomy.js';
-import { assignColors } from '../util/colors.js';
-import { renderTable } from '../util/table.js';
-
 
 export const viewLevel = writable(1);
-
 
 function createTaxonomyStore() {
     const taxonomy = writable([]);
@@ -130,55 +126,6 @@ function createTaxonomyChangesStore() {
 export const taxonomyChanges = createTaxonomyChangesStore();
 
 
-function createTableStore() {
-    const data = writable({table: new Map(), rendered: []});
-    let { subscribe, update, set } = data;
-
-    const getSample = (id) => {
-        return get(data).table.get(id);
-    };
-
-    const render = async (
-        taxonomy, changes, level, colorScheme, customColors
-    ) => {
-        const rendered = await renderTable(
-            get(data).table, taxonomy, changes, level
-        );
-        const colored = assignColors(
-            rendered, colorScheme, customColors
-        );
-        data.update(state => {
-            return {...state, rendered: colored};
-        });
-    };
-
-    const color = (colorScheme, customColors) => {
-        const colored = assignColors(
-            get(data).rendered, colorScheme, customColors
-        );
-        data.update(state => {
-            return {...state, rendered: colored};
-        });
-    };
-
-    return {
-        subscribe,
-        update,
-        set,
-        getSample,
-        render,
-        color,
-    };
-}
-export const tableStore = createTableStore();
-export const table = derived(
-    tableStore,
-    ($tableStore) => $tableStore.table,
-);
-export const rendered = derived(
-    tableStore,
-    ($tableStore) => $tableStore.rendered,
-);
 
 
 export const selectedTaxon = writable({});

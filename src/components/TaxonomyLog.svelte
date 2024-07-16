@@ -1,6 +1,6 @@
 <script>
     import Log from './Log.svelte';
-    import { taxonomyLog } from '../stores/stores.js';
+    import { taxonomyLog } from '../stores/taxonomy.js';
 </script>
 
 <div class="taxonomy-log">

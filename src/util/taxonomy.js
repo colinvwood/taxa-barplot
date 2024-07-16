@@ -34,7 +34,6 @@ export function getSiblings(taxonomy, taxon) {
             siblings.push(otherTaxon);
         }
     }
-
     return siblings;
 }
 

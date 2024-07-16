@@ -1,7 +1,7 @@
 <script>
     import Taxon from './Taxon.svelte';
 
-    import { taxonomy, selectedTaxon } from '../stores/stores.js';
+    import { taxonomy, selectedTaxon } from '../stores/taxonomy.js';
 
     export let subsetter;
 
