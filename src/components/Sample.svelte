@@ -1,5 +1,5 @@
 <script>
-    import { taxonomy } from '../stores/taxonomy.js';
+    import { taxonomy } from '../stores/taxonomy.svelte.js';
     import { tableStore } from '../stores/table.js';
     import { hoveredTaxon } from '../stores/hoveredTaxon.js';
 

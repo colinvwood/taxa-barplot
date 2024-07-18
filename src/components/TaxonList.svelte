@@ -1,11 +1,11 @@
 <script>
     import Taxon from './Taxon.svelte';
 
-    import { taxonomy, selectedTaxon } from '../stores/taxonomy.js';
+    import { taxonomy, selectedTaxon } from '../stores/taxonomy.svelte.js';
 
     export let subsetter;
 
-    $: taxa = subsetter($taxonomy, $selectedTaxon)
+    $: taxa = subsetter(taxonomy.taxonomy, $selectedTaxon)
 </script>
 
 {#if taxa != null && taxa.constructor === Array}

@@ -2,7 +2,112 @@ import { writable, get } from 'svelte/store';
 
 import { renderCurrentView, getDescendantsAtLevel } from '../util/taxonomy.js';
 
-export const viewLevel = writable(1);
+function createTaxonomy() {
+    // level at which taxonomy is viewed
+    let viewLevel = $state(1);
+
+    // all taxa in taxonomy
+    let taxonomy = $state([]);
+    // taxa at viewed level
+    let rendered = $state([]);
+
+    // custom taxonomy adjustments
+    let changes = $state({
+        expansions: new Map(),
+        groupings: new Map(),
+        filters: new Set(),
+    });
+
+    function getTaxon(id) {
+        for (let taxon of taxonomy) {
+            if (taxon.id == taxon.id) {
+                return taxon;
+            }
+        }
+        return null;
+    }
+
+    function setProperty(id, property, value) {
+        taxonomy = taxonomy.map(taxon => {
+            if (taxon.id == id) {
+                taxon[property] = value;
+            }
+            return taxon;
+        });
+    }
+
+    function toggleProperty(id, property) {
+        taxonomy = taxonomy.map(taxon => {
+            if (taxon.id == id) {
+                taxon[property] = !taxon[property];
+            }
+            return taxon;
+        });
+    }
+
+    function render() {
+        rendered = renderCurrentView(taxonomy, viewLevel, changes);
+    }
+
+    function expand(taxon, level) {
+        if (changes.expansions.has(taxon.id)) {
+            changes.expansions.delete(taxon.id);
+        } else {
+            changes.expansions.set(taxon.id, level);
+        }
+        render();
+    }
+
+    function group(taxon, level) {
+        const descendants = getDescendantsAtLevel(taxonomy, taxon, level);
+        if (descendants.length == 0) {
+            alert('Can not group leaf taxon.');
+            return;
+        }
+
+        if (
+            changes.groupings.has(descendants[0].id) &&
+            changes.groupings.get(descendants[0].id) == taxon.level
+        ) {
+            for (const descendant of descendants) {
+                changes.groupings.delete(descendant.id);
+            }
+        } else {
+            for (const descendant of descendants) {
+                changes.groupings.set(descendant.id, taxon.level);
+            }
+        }
+        render();
+    }
+
+    function filter(taxon) {
+        if (changes.filters.has(taxon.id)) {
+            changes.filters.delete(taxon.id);
+        } else {
+            changes.filters.add(taxon.id);
+        }
+        render();
+    }
+
+    return {
+        get viewLevel() {return viewLevel},
+        set viewLevel(v) {viewLevel = v},
+
+        get taxonomy() {return taxonomy},
+        set taxonomy(t) {taxonomy = t},
+        get rendered() {return rendered},
+        getTaxon,
+        setProperty,
+        toggleProperty,
+        render,
+
+        get changes() {return changes},
+        expand,
+        group,
+        filter
+    };
+}
+export const taxonomy = createTaxonomy();
 
 function createTaxonomyStore() {
     const taxonomy = writable([]);
@@ -57,7 +162,7 @@ function createTaxonomyStore() {
         render
     }
 }
-export const taxonomy = createTaxonomyStore();
+// export const taxonomy = createTaxonomyStore();
 
 
 function createTaxonomyChangesStore() {
@@ -123,7 +228,7 @@ function createTaxonomyChangesStore() {
         filter,
     }
 }
-export const taxonomyChanges = createTaxonomyChangesStore();
+// export const taxonomyChanges = createTaxonomyChangesStore();
 
 
 

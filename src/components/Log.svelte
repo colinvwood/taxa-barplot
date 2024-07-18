@@ -1,8 +1,8 @@
 <script>
     import { get } from 'svelte/store';
     import {
-        taxonomy, taxonomyLog, viewLevel
-    } from '../stores/taxonomy.js';
+        taxonomy, taxonomyLog
+    } from '../stores/taxonomy.svelte.js';
 
     export let taxon;
 
@@ -12,7 +12,7 @@
         });
 
         taxonomy.toggleProperty(taxon.id, taxon.action);
-        taxonomy.render(get(viewLevel));
+        taxonomy.render();
     }
 
 

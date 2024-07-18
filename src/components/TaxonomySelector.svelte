@@ -2,17 +2,22 @@
     import {
         getParent, getSiblings, getChildren
     } from '../util/taxonomy.js';
-    import { viewLevel } from '../stores/taxonomy.js';
+    import { taxonomy } from '../stores/taxonomy.svelte.js';
 
     import TaxonList from './TaxonList.svelte';
     import SelectedTaxon from './SelectedTaxon.svelte';
     import CurrentLevel from './CurrentLevel.svelte';
 
+    function updateViewLevel(event) {
+        taxonomy.viewLevel = event.target.value;
+        taxonomy.render();
+    }
+
 </script>
 
 
 <div class="container">
-    <input bind:value={$viewLevel} />
+    <input value={taxonomy.viewLevel} on:change={updateViewLevel} />
 
     <p>parent</p>
     <div class="parent">
@@ -24,7 +29,7 @@
         <TaxonList subsetter={getSiblings} />
     </div>
 
-    <p>taxa at level {$viewLevel}</p>
+    <p>taxa at level {taxonomy.viewLevel}</p>
     <div class="currentLevel">
         <CurrentLevel />
     </div>

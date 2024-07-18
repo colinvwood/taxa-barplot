@@ -1,5 +1,5 @@
 <script>
-    import { selectedTaxon } from '../stores/taxonomy.js';
+    import { selectedTaxon } from '../stores/taxonomy.svelte.js';
 
     export let taxon;
 

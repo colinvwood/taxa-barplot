@@ -1,8 +1,8 @@
 <script>
     import { get } from 'svelte/store';
     import {
-        taxonomy, selectedTaxon, taxonomyChanges
-    } from '../stores/taxonomy.js';
+        taxonomy, selectedTaxon
+    } from '../stores/taxonomy.svelte.js';
 
     let level = 0;
     let grouped = false;
@@ -24,7 +24,7 @@
             return;
         }
 
-        taxonomyChanges.group(get(taxonomy), taxon, level);
+        taxonomy.group(taxon, level);
         grouped = !grouped;
     }
 
@@ -45,7 +45,7 @@
             return;
         }
 
-        taxonomyChanges.expand(taxon, level);
+        taxonomy.expand(taxon, level);
         expanded = !expanded;
     }
 
@@ -85,5 +85,4 @@
         font-weight: bold;
         background-color: #fff44b;
     }
-
 </style>

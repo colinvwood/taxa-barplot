@@ -6,9 +6,7 @@
 
     import { tableStore, table, rendered } from '../stores/table.js';
 
-    import {
-        taxonomy, viewLevel, taxonomyChanges
-    } from '../stores/taxonomy.js';
+    import { taxonomy } from '../stores/taxonomy.svelte.js';
     import { customColors } from '../stores/colors.js';
 
     let dimensions = {};
@@ -30,7 +28,7 @@
     }
 
     $: tableStore.render(
-        get(taxonomy), $taxonomyChanges, $viewLevel, 'marine', $customColors
+        taxonomy.taxonomy, taxonomy.changes, taxonomy.viewLevel, 'marine', $customColors
     );
 
 </script>

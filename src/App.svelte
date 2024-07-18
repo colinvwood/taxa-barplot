@@ -4,7 +4,7 @@
 
     import { parseTaxonomy, parseFeatureTable }  from './util/parse.js';
     import { calculateTaxonomyStats } from './util/table.js';
-    import { taxonomy, taxonomyChanges } from './stores/taxonomy.js';
+    import { taxonomy } from './stores/taxonomy.svelte.js';
     import { tableStore } from './stores/table.js';
     import { customColors } from './stores/colors.js';
 
@@ -26,9 +26,10 @@
             return calculateTaxonomyStats(parsedTaxonomy, parsedTable);
         })
         .then((taxonomyWithStats) => {
-            taxonomy.set(taxonomyWithStats);
+            taxonomy.taxonomy = taxonomyWithStats;
+            taxonomy.render();
             tableStore.render(
-                get(taxonomy), get(taxonomyChanges), 1, 'marine', $customColors
+                taxonomy.taxonomy, taxonomy.changes, 1, 'marine', $customColors
             );
         });
     });
