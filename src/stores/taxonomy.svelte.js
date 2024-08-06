@@ -45,7 +45,7 @@ function createTaxonomy() {
         });
     }
 
-    function render() {
+    function render(viewLevel, changes) {
         rendered = renderCurrentView(taxonomy, viewLevel, changes);
     }
 
@@ -55,7 +55,7 @@ function createTaxonomy() {
         } else {
             changes.expansions.set(taxon.id, level);
         }
-        render();
+        console.log('expansions updated');
     }
 
     function group(taxon, level) {
@@ -77,7 +77,6 @@ function createTaxonomy() {
                 changes.groupings.set(descendant.id, taxon.level);
             }
         }
-        render();
     }
 
     function filter(taxon) {

@@ -5,7 +5,7 @@
     import { parseTaxonomy, parseFeatureTable }  from './util/parse.js';
     import { calculateTaxonomyStats } from './util/table.js';
     import { taxonomy } from './stores/taxonomy.svelte.js';
-    import { tableStore } from './stores/table.js';
+    import { tableStore } from './stores/table.svelte.js';
     import { customColors } from './stores/colors.js';
 
     import Plot from './components/Plot.svelte';
@@ -27,7 +27,7 @@
         })
         .then((taxonomyWithStats) => {
             taxonomy.taxonomy = taxonomyWithStats;
-            taxonomy.render();
+            taxonomy.render(taxonomy.viewLevel, taxonomy.changes);
             tableStore.render(
                 taxonomy.taxonomy, taxonomy.changes, 1, 'marine', $customColors
             );

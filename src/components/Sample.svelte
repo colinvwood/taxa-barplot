@@ -1,6 +1,6 @@
 <script>
     import { taxonomy } from '../stores/taxonomy.svelte.js';
-    import { tableStore } from '../stores/table.js';
+    import { tableStore } from '../stores/table.svelte.js';
     import { hoveredTaxon } from '../stores/hoveredTaxon.js';
 
     export let sample;

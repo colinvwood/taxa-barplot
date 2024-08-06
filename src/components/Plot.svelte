@@ -4,7 +4,7 @@
     import HoveredTaxon from './HoveredTaxon.svelte';
     import Sample from './Sample.svelte';
 
-    import { tableStore, table, rendered } from '../stores/table.js';
+    import { tableStore, table, rendered } from '../stores/table.svelte.js';
 
     import { taxonomy } from '../stores/taxonomy.svelte.js';
     import { customColors } from '../stores/colors.js';
