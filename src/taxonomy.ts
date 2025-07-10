@@ -24,7 +24,7 @@ export class Taxonomy {
                 .filter((n) => n != "");
 
             for (let [levelIndex, levelName] of levelNames.entries()) {
-                const existingChild = this.findChildByName(
+                const existingChild = this.#findChildByName(
                     parentNode,
                     levelName,
                 );
@@ -44,126 +44,121 @@ export class Taxonomy {
     }
 
     /**
-     * Mark `taxon` and its descendants at level `expandToLevel` as part of an
-     * expansion, if valid.
+     *
      */
-    addExpandFromAncestor(taxon: Taxon, expandToLevel: number): undefined {
+    addExpandFromAncestor(taxon: Taxon, expandToLevel: number): boolean {
         // ensure taxon level is less than the level to which to expand
         const taxonLevel = this.getTaxonLevel(taxon);
         if (taxonLevel >= expandToLevel) {
-            throw new Error(
-                `Can not expand from level ${taxonLevel} to ${expandToLevel}` +
-                    `(from-level must be less than to-level).`,
-            );
-        }
-
-        // ensure expansion does not create expand/collapse cycle
-        if (
-            taxon.collapseStatus.ancestor &&
-            taxon.collapseStatus.descendantLevel == expandToLevel
-        ) {
-            throw new Error(
-                `Taxon ${taxon.name} can not be expanded to level ` +
-                    `${expandToLevel} because it is already collapsed to ` +
-                    `from that level.`,
-            );
-        }
-
-        // ensure taxon is not already the ancestor of an expansion
-        if (taxon.expandStatus.ancestor) {
-            throw new Error(
-                `Taxon ${taxon.name} can not be expanded because it is ` +
-                    `already expanded to level ` +
-                    `${taxon.expandStatus.descendantLevel}`,
-            );
+            alert("Expansion from-level must be less than to-level.");
+            return false;
         }
 
         // ensure taxon has descendants to which to expand
         const descendantTaxa = this.getDescendantsAtLevel(taxon, expandToLevel);
         if (descendantTaxa.length == 0) {
-            throw new Error(
-                `Taxon ${taxon.name} has no descendants at level ` +
-                    `${expandToLevel}.`,
-            );
+            alert(`Taxon has no descendants at level ${expandToLevel}.`);
+            return false;
         }
 
-        taxon.expandStatus = {
-            ...taxon.expandStatus,
-            ancestor: true,
-            ancestorLevel: taxonLevel,
-            descendantLevel: expandToLevel,
-        };
-
-        for (let descendant of descendantTaxa) {
-            descendant.expandStatus = {
-                ...descendant.expandStatus,
-                descendant: true,
-                ancestorLevel: taxonLevel,
-                descendantLevel: expandToLevel,
-            };
+        // scan sub tree to ensure no other expand/collapse
+        if (this.#isSubTreeClear(taxon, expandToLevel)) {
+            alert("An expansion or collapse was detected in the subtree.");
+            return false;
         }
+
+        taxon.expandTo = expandToLevel;
+
+        // todo: update data structure tracking expansions & collapses
+
+        return true;
     }
 
     /**
-     * Mark `taxon`, its ancestor at level `collapseToLevel`, and all of the
-     * siblings of `taxon` with respect to that ancestor as part of a collapse,
-     * if valid.
+     *
      */
-    addCollapseFromDescendant(
-        taxon: Taxon,
-        collapseToLevel: number,
-    ): undefined {
+    addCollapseFromDescendant(taxon: Taxon, collapseToLevel: number): boolean {
         // ensure taxon level is greater than the level to which to collpase
         const taxonLevel = this.getTaxonLevel(taxon);
         if (taxonLevel <= collapseToLevel) {
-            throw new Error(
-                `Can not collapse from level ${taxonLevel} to ` +
-                    `${collapseToLevel} (from-level must be greater than ` +
-                    `to-level).`,
-            );
-        }
-
-        // ensure collapse does not create expand/collapse cycle
-        if (
-            taxon.expandStatus.descendant &&
-            taxon.expandStatus.ancestorLevel == collapseToLevel
-        ) {
-            throw new Error(
-                `Taxon ${taxon.name} can not be collapsed to level ` +
-                    `${collapseToLevel} because it is already expanded from ` +
-                    `that level.`,
-            );
+            alert("Collapse from-level must be greater than to-level.");
+            return false;
         }
 
         const ancestor = this.getAncestorAtLevel(taxon, collapseToLevel);
-        const siblings = this.getDescendantsAtLevel(ancestor, taxonLevel);
 
-        // ensure no sibling is already a descendant of a collapse
-        for (let sibling of siblings) {
-            if (sibling.collapseStatus.descendant) {
-                throw new Error(
-                    `Taxon ${taxon.name} can not be collapsed because it or ` +
-                        `one of its siblings is already collapsed to level ` +
-                        `${taxon.collapseStatus.ancestorLevel}.`,
-                );
+        // scan sub tree to ensure no other expand/collapse
+        if (this.#isSubTreeClear(ancestor, taxonLevel)) {
+            alert("An expansion or collapse was detected in the subtree.");
+            return false;
+        }
+
+        ancestor.collapseFrom = taxonLevel;
+
+        // todo: update data structure tracking expansions & collapses
+
+        return true;
+    }
+
+    /**
+     * For a given feature ID find the taxon at which it is displayed, taking
+     * into account display level, expansions, and collapses.
+     */
+    getDisplayTaxon(featureID: string): Taxon {
+        // find taxon by feature ID
+        const featureTaxon = this.#findTaxonByFeatureID(featureID);
+        const featureTaxonLevel = this.#getTaxonLevel(featureTaxon);
+
+        // map to ancestor if needed
+        let taxon: Taxon;
+        if (featureTaxonLevel > this.displayLevel) {
+            taxon = this.getAncestorAtLevel(featureTaxon, this.displayLevel);
+        } else {
+            taxon = featureTaxon;
+        }
+
+        // follow expansion if present
+        if (taxon.expandTo != null) {
+            if (taxon.expandTo >= featureTaxonLevel) {
+                return featureTaxon;
             }
+            return this.getAncestorAtLevel(featureTaxon, taxon.expandTo);
         }
 
-        ancestor.collapseStatus = {
-            ...ancestor.collapseStatus,
-            ancestor: true,
-            ancestorLevel: collapseToLevel,
-            descendantLevel: taxonLevel,
-        };
+        // follow collapse if present
+        const ancestors = this.getAncestors(taxon);
+        const collapsedAncestors = ancestors.filter((a) => {
+            return (
+                a.collapseFrom != null && a.collapseFrom >= this.displayLevel
+            );
+        });
 
-        for (let sibling of siblings) {
-            sibling.collapseStatus = {
-                ...sibling.collapseStatus,
-                descendant: true,
-                ancestorLevel: collapseToLevel,
-                descendantLevel: taxonLevel,
-            };
+        if (collapsedAncestors.length > 1) {
+            throw new Error("Expected at most one valid collapse ancestor.");
         }
+        if (collapsedAncestors.length == 1) {
+            return collapsedAncestors[0];
+        }
+
+        return taxon;
+    }
+
+    /**
+     * Checks a subtree in the taxonomy extending from `ancestor` down to
+     * `descendantLevel` for any taxa marked as expanded or collapsed. If any
+     * are found, false is returned; if none are found true is returned.
+     */
+    #isSubTreeClear(ancestor: Taxon, descendantLevel: number): boolean {
+        const descendants = this.getDescendants(ancestor);
+        const violators = descendants.filter((d) => {
+            const inSubTree = this.#getTaxonLevel(d) <= descendantLevel;
+            const isCollapsed = d.expandTo != null;
+            const isExpanded = d.collapseFrom != null;
+
+            return inSubTree && (isCollapsed || isExpanded);
+        });
+
+        return violators.length == 0;
     }
 
     /**
@@ -190,7 +185,7 @@ export class Taxonomy {
         }
 
         return descendants.filter((descendant) => {
-            return this.getTaxonLevel(descendant) == level;
+            return this.#getTaxonLevel(descendant) == level;
         });
     }
 
@@ -209,14 +204,14 @@ export class Taxonomy {
      * Returns the ancestor of `taxon` at level `level`.
      */
     getAncestorAtLevel(taxon: Taxon, level: number): Taxon {
-        if (this.getTaxonLevel(taxon) < level) {
+        if (this.#getTaxonLevel(taxon) < level) {
             throw new Error("Taxon level less than ancestor level.");
         }
 
         const ancestors = this.getAncestors(taxon);
 
         const ancestorsAtLevel = ancestors.filter((ancestor) => {
-            return this.getTaxonLevel(ancestor) == level;
+            return this.#getTaxonLevel(ancestor) == level;
         });
 
         if (ancestorsAtLevel.length > 1) {
@@ -233,7 +228,7 @@ export class Taxonomy {
      * Searches all children of `parent` for a child with name `name`. Returns
      * the child if found, or null if no matching child is found.
      */
-    findChildByName(parent: Taxon, name: string): Taxon | null {
+    #findChildByName(parent: Taxon, name: string): Taxon | null {
         let matchingChildren = parent.children.filter((child) => {
             return child.name == name;
         });
@@ -252,7 +247,7 @@ export class Taxonomy {
      * Find the classification of the feature with id `featureID` by searching
      * the entire taxonomy.
      */
-    findTaxonByFeatureID(featureID: string): Taxon {
+    #findTaxonByFeatureID(featureID: string): Taxon {
         const allTaxa = this.getDescendants(this.rootTaxon);
         const matches = allTaxa.filter(
             (t) => t.featureIDs.indexOf(featureID) != -1,
@@ -270,21 +265,14 @@ export class Taxonomy {
         return matches[0];
     }
 
-    getTaxonLevel(taxon: Taxon): number {
+    #getTaxonLevel(taxon: Taxon): number {
         if (taxon.parent == null) {
             return 1;
         }
 
-        return this.getTaxonLevel(taxon.parent) + 1;
+        return this.#getTaxonLevel(taxon.parent) + 1;
     }
 }
-
-type ExpandCollapseStatus = {
-    ancestor: boolean;
-    descendant: boolean;
-    ancestorLevel: number | null;
-    descendantLevel: number | null;
-};
 
 class Taxon {
     name: string;
@@ -292,30 +280,17 @@ class Taxon {
     children: Taxon[];
 
     selected: boolean;
-    expandStatus: ExpandCollapseStatus;
-    collapseStatus: ExpandCollapseStatus;
+    expandTo: number | null;
+    collapseFrom: number | null;
 
     featureIDs: string[];
 
     constructor(name: string, parent: Taxon | null) {
         this.name = name;
         this.parent = parent;
-
         this.selected = false;
-
-        this.expandStatus = {
-            ancestor: false,
-            descendant: false,
-            ancestorLevel: null,
-            descendantLevel: null,
-        };
-        this.collapseStatus = {
-            ancestor: false,
-            descendant: false,
-            ancestorLevel: null,
-            descendantLevel: null,
-        };
-
+        this.expandTo = null;
+        this.collapseFrom = null;
         this.featureIDs = [];
     }
 }
