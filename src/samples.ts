@@ -1,5 +1,5 @@
 import { tsv } from "d3-fetch";
-import { Taxonomy } from "./taxonomy.ts";
+import { Taxonomy, Taxon } from "./taxonomy.ts";
 
 export class SampleManager {
     samples: Sample[];
@@ -36,8 +36,16 @@ export class SampleManager {
         }
     }
 
-    drawSamples() {}
+    /**
+     *
+     */
+    drawSamples() {
+        // clear <svg> content
+    }
 
+    /**
+     *
+     */
     calcTaxaStats() {}
 }
 
@@ -53,25 +61,106 @@ class Sample {
     }
 
     /**
-     *
+     * Maps a sample's features to a set of "view taxa", which are the taxa
+     * that the features are displayed as in the stacked bar chart. Updates
+     * (and overwrites) `this.viewTaxa`.
      */
-    mapToTaxa(taxonomy: Taxonomy) {
-        // for each feature, find display taxon
-        // if no such view taxon yet, create one and add abundance and feature id
-        // if existing view taxon, add abundance and feature id
+    mapToViewTaxa(taxonomy: Taxonomy) {
+        const viewTaxaMap: Map<Taxon, ViewTaxon> = new Map();
+
+        for (let feature of this.features) {
+            const displayTaxon = taxonomy.getDisplayTaxon(feature.featureID);
+
+            if (!viewTaxaMap.get(displayTaxon)) {
+                const newViewTaxon = new ViewTaxon(displayTaxon);
+                viewTaxaMap.set(displayTaxon, newViewTaxon);
+            }
+
+            const viewTaxon = viewTaxaMap.get(displayTaxon)!;
+            viewTaxon.abundance += feature.abundance;
+            viewTaxon.features.push(feature);
+        }
+
+        this.viewTaxa = [...viewTaxaMap.values()];
     }
 
-    calcRelAbun() {}
+    /**
+     * Calculates and assigns the relative abundance of each taxon in
+     * `this.viewTaxa`.
+     */
+    calcRelAbun() {
+        const totalAbundance = this.viewTaxa.reduce((sum, taxon) => {
+            return (sum += taxon.abundance);
+        }, 0);
 
-    tallyPrevalence(prevalenceMap: Map<string, number>) {}
+        for (let viewTaxon of this.viewTaxa) {
+            viewTaxon.relAbun = viewTaxon.abundance / totalAbundance;
+        }
+    }
 
-    calcPrevalence(prevalenceMap: Map<string, number>) {}
+    /**
+     * Updates a prevalence map with each of the taxa in `this.viewTaxa`.
+     */
+    tallyPrevalence(prevalenceMap: Map<ViewTaxon, number>) {
+        for (let viewTaxon of this.viewTaxa) {
+            if (!prevalenceMap.get(viewTaxon)) {
+                prevalenceMap.set(viewTaxon, 1);
+            } else {
+                const prevalence = prevalenceMap.get(viewTaxon) as number;
+                prevalenceMap.set(viewTaxon, prevalence + 1);
+            }
+        }
+    }
 
-    applyFilters(filters: function[]) {}
+    /**
+     * Uses a fully populated prevalence map to record the prevalence of each
+     * taxon in `this.viewTaxa`.
+     */
+    calcPrevalence(prevalenceMap: Map<ViewTaxon, number>, numSamples: number) {
+        for (let viewTaxon of this.viewTaxa) {
+            const prevalence = prevalenceMap.get(viewTaxon) as number;
+            const prevalenceProportion = prevalence / numSamples;
+            viewTaxon.preval = prevalence;
+            viewTaxon.prevalProp = prevalenceProportion;
+        }
+    }
 
+    /**
+     *
+     */
+    filterViewTaxa(filters: string) {}
+
+    /**
+     *
+     */
     sortViewTaxa(taxonomy: Taxonomy) {}
 
-    draw(x0: number, y0: number, width: number, height: number) {}
+    /**
+     *
+     */
+    draw(x0: number, y0: number, barWidth: number, barHeight: number) {
+        const svgElem = document.querySelector(".barplot")!;
+        const svgNamespace = "http://www.w3.org/2000/svg";
+
+        for (let viewTaxon of this.viewTaxa) {
+            // TODO: use `Colors`
+            const color = "#4f34eb";
+
+            // create and append rect
+            const rectHeight = viewTaxon.relAbun * barHeight;
+            const rect = document.createElementNS(svgNamespace, "rect");
+            rect.setAttribute("x", x0.toString());
+            rect.setAttribute("y", y0.toString());
+            rect.setAttribute("width", barWidth.toString());
+            rect.setAttribute("height", rectHeight.toString());
+            rect.setAttribute("fill", color);
+
+            // TODO: register click handler
+
+            svgElem.appendChild(rect);
+            y0 += rectHeight;
+        }
+    }
 }
 
 class Feature {
@@ -88,9 +177,16 @@ class ViewTaxon {
     taxon: Taxon;
     features: Feature[];
     abundance: number;
-    relativeAbundance: number;
-    prevalence: number;
+    relAbun: number;
+    preval: number;
+    prevalProp: number;
     collapsed: boolean;
     expanded: boolean;
     color: string;
+
+    constructor(taxon: Taxon) {
+        this.taxon = taxon;
+    }
 }
+
+class Colors {}

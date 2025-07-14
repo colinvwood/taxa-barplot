@@ -1,20 +1,17 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/27.0.9 Chrome/134.0.6998.205 Electron/35.4.0 Safari/537.36" version="27.0.9">
   <diagram name="Page-1" id="ScEAED-juJEtONYMeBrp">
-    <mxGraphModel dx="1818" dy="1428" grid="1" gridSize="15" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1953" dy="1526" grid="1" gridSize="15" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="TV5vEVpm7wU5M8RR6qZn-1" value="Taxon" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry y="15" width="240" height="225" as="geometry" />
+          <mxGeometry y="15" width="240" height="195" as="geometry" />
         </mxCell>
         <mxCell id="TV5vEVpm7wU5M8RR6qZn-2" value="+ name: string&lt;div&gt;+ parent: Taxon&lt;/div&gt;&lt;div&gt;+ children: Taxon[]&lt;/div&gt;&lt;div&gt;+ selected: boolean&lt;/div&gt;&lt;div&gt;+ expandStatus: ExpandCollapseStatus&lt;/div&gt;&lt;div&gt;+ collapseStatus: ExpandCollapseStatus&lt;/div&gt;&lt;div&gt;+ featureIDs: string[]&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="TV5vEVpm7wU5M8RR6qZn-1" vertex="1">
-          <mxGeometry y="26" width="240" height="154" as="geometry" />
+          <mxGeometry y="26" width="240" height="124" as="geometry" />
         </mxCell>
         <mxCell id="TV5vEVpm7wU5M8RR6qZn-3" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="TV5vEVpm7wU5M8RR6qZn-1" vertex="1">
-          <mxGeometry y="180" width="240" height="8" as="geometry" />
-        </mxCell>
-        <mxCell id="TV5vEVpm7wU5M8RR6qZn-4" value="+ getLevel(): number" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="TV5vEVpm7wU5M8RR6qZn-1" vertex="1">
-          <mxGeometry y="188" width="240" height="37" as="geometry" />
+          <mxGeometry y="150" width="240" height="45" as="geometry" />
         </mxCell>
         <mxCell id="TV5vEVpm7wU5M8RR6qZn-124" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=diamondThin;startFill=1;endArrow=none;endSize=8;startSize=8;" parent="1" source="TV5vEVpm7wU5M8RR6qZn-14" target="TV5vEVpm7wU5M8RR6qZn-1" edge="1">
           <mxGeometry relative="1" as="geometry" />
@@ -38,7 +35,7 @@
         <mxCell id="TV5vEVpm7wU5M8RR6qZn-16" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="TV5vEVpm7wU5M8RR6qZn-14" vertex="1">
           <mxGeometry y="105" width="420" height="8" as="geometry" />
         </mxCell>
-        <mxCell id="TV5vEVpm7wU5M8RR6qZn-17" value="&lt;div&gt;+ parse(filepath: string)&lt;/div&gt;+ addExpandFromAncestor(taxon: Taxon)&lt;div&gt;+ addCollapseFromDescendant(taxon: Taxon)&lt;/div&gt;&lt;div&gt;+ getDisplayTaxon(featureID: string): Taxon&lt;/div&gt;&lt;div&gt;- isSubTreeClear(ancestor: Taxon, descendantLevel: number): boolean&lt;/div&gt;&lt;div&gt;+ getDescendants(taxon: Taxon): Taxon[]&lt;/div&gt;&lt;div&gt;+ getDescendantsAtLevel(taxon: Taxon, level: number): Taxon[]&lt;/div&gt;&lt;div&gt;+ getAncestors(taxon: Taxon): Taxon[]&lt;/div&gt;&lt;div&gt;+ getAncestorAtLevel(taxon: Taxon): Taxon&lt;/div&gt;&lt;div&gt;+ findChildByName(parent: Taxon, name: string): Taxon | null&lt;/div&gt;&lt;div&gt;+ findTaxonByFeatureID(featureID: string): Taxon&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="TV5vEVpm7wU5M8RR6qZn-14" vertex="1">
+        <mxCell id="TV5vEVpm7wU5M8RR6qZn-17" value="&lt;div&gt;+ parse(filepath: string)&lt;/div&gt;+ addExpandFromAncestor(taxon: Taxon)&lt;div&gt;+ addCollapseFromDescendant(taxon: Taxon)&lt;/div&gt;&lt;div&gt;+ getDisplayTaxon(featureID: string): Taxon&lt;/div&gt;&lt;div&gt;- isSubTreeClear(ancestor: Taxon, descendantLevel: number): boolean&lt;/div&gt;&lt;div&gt;+ getDescendants(taxon: Taxon): Taxon[]&lt;/div&gt;&lt;div&gt;+ getDescendantsAtLevel(taxon: Taxon, level: number): Taxon[]&lt;/div&gt;&lt;div&gt;+ getAncestors(taxon: Taxon): Taxon[]&lt;/div&gt;&lt;div&gt;+ getAncestorAtLevel(taxon: Taxon): Taxon&lt;/div&gt;&lt;div&gt;- findChildByName(parent: Taxon, name: string): Taxon | null&lt;/div&gt;&lt;div&gt;- findTaxonByFeatureID(featureID: string): Taxon&lt;/div&gt;&lt;div&gt;- getTaxonLevel(taxon: Taxon): number&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="TV5vEVpm7wU5M8RR6qZn-14" vertex="1">
           <mxGeometry y="113" width="420" height="202" as="geometry" />
         </mxCell>
         <mxCell id="TV5vEVpm7wU5M8RR6qZn-97" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;startFill=1;startArrow=diamondThin;" parent="1" source="TV5vEVpm7wU5M8RR6qZn-21" target="TV5vEVpm7wU5M8RR6qZn-25" edge="1">
@@ -109,7 +106,7 @@
         <mxCell id="TV5vEVpm7wU5M8RR6qZn-27" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="TV5vEVpm7wU5M8RR6qZn-25" vertex="1">
           <mxGeometry y="105" width="315" height="8" as="geometry" />
         </mxCell>
-        <mxCell id="TV5vEVpm7wU5M8RR6qZn-28" value="&lt;div&gt;+ mapToTaxa(taxonomy: Taxonomy): ViewTaxon[]&lt;/div&gt;&lt;div&gt;+ calcRelAbun()&lt;/div&gt;&lt;div&gt;+ tallyPrevalence(prevalenceMap: &amp;lt;string, number&amp;gt;)&lt;/div&gt;&lt;div&gt;+ calcPrevalence(prevalenceMap: &amp;lt;string, number&amp;gt;)&lt;/div&gt;&lt;div&gt;+ applyFilters(filters: function[]) {viewTaxa}&lt;/div&gt;&lt;div&gt;+ sortViewTaxa(taxonomy: Taxonomy) {viewTaxa}&lt;/div&gt;&lt;div&gt;+ draw()&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="TV5vEVpm7wU5M8RR6qZn-25" vertex="1">
+        <mxCell id="TV5vEVpm7wU5M8RR6qZn-28" value="&lt;div&gt;+ mapToViewTaxa(taxonomy: Taxonomy)&lt;/div&gt;&lt;div&gt;+ calcRelAbun()&lt;/div&gt;&lt;div&gt;+ tallyPrevalence(prevalenceMap: &amp;lt;string, number&amp;gt;)&lt;/div&gt;&lt;div&gt;+ calcPrevalence(prevalenceMap: &amp;lt;string, number&amp;gt;)&lt;/div&gt;&lt;div&gt;+ filterViewTaxa(filters: function[])&lt;/div&gt;&lt;div&gt;+ sortViewTaxa(taxonomy: Taxonomy)&lt;/div&gt;&lt;div&gt;+ draw()&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="TV5vEVpm7wU5M8RR6qZn-25" vertex="1">
           <mxGeometry y="113" width="315" height="127" as="geometry" />
         </mxCell>
         <mxCell id="TV5vEVpm7wU5M8RR6qZn-39" value="Feature" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">

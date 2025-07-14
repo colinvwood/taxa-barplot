@@ -272,9 +272,18 @@ export class Taxonomy {
 
         return this.#getTaxonLevel(taxon.parent) + 1;
     }
+
+    /**
+     * Return the full taxonomic string of `taxon`. Serves as a unique id.
+     */
+    #getTaxonID(taxon: Taxon): string {
+        const ancestors = this.getAncestors(taxon);
+
+        return ancestors.join(";");
+    }
 }
 
-class Taxon {
+export class Taxon {
     name: string;
     parent: Taxon | null;
     children: Taxon[];
