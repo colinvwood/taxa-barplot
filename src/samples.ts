@@ -1,11 +1,38 @@
 import { tsv } from "d3-fetch";
 import { Taxonomy, Taxon } from "./taxonomy.ts";
+import { Metadata } from "./metadata.ts";
+import { Colors } from "./colors.ts";
+import { Legend } from "./legend.ts";
 
 export class SampleManager {
     samples: Sample[];
+    retainedSamples: Sample[];
     metadata: Metadata;
     taxonomy: Taxonomy;
-    abundanceFilters: string[];
+    legend: Legend;
+    plotDimensions: PlotDimensions;
+    abundanceFilters: ((vt: ViewTaxon) => boolean)[];
+
+    constructor(
+        metadata: Metadata,
+        taxonomy: Taxonomy,
+        svgWidth: number,
+        svgHeight: number,
+    ) {
+        this.samples = [];
+        this.retainedSamples = [];
+        this.metadata = metadata;
+        this.taxonomy = taxonomy;
+
+        this.legend = new Legend();
+
+        this.plotDimensions = {
+            width: svgWidth,
+            height: svgHeight,
+        };
+
+        this.abundanceFilters = [];
+    }
 
     /**
      * Parses a feature table saved as a tsv file (with samples as columns,
@@ -37,16 +64,60 @@ export class SampleManager {
     }
 
     /**
-     *
+     * Calculates relative abundance, prevalence, and prevalence proportion for
+     * each view taxon in each sample.
      */
-    drawSamples() {
-        // clear <svg> content
+    calcTaxaStats() {
+        for (let sample of this.samples) {
+            sample.calcRelAbun();
+
+            const prevalenceMap: Map<ViewTaxon, number> = new Map();
+            sample.tallyPrevalence(prevalenceMap);
+            sample.calcPrevalence(prevalenceMap, this.samples.length);
+        }
     }
 
     /**
-     *
+     * Draws each sample to the barplot.
      */
-    calcTaxaStats() {}
+    drawSamples() {
+        // clear <svg> content
+        const svgElem = document.querySelector(".barplot")!;
+        svgElem.innerHTML = "";
+
+        // draw each sample
+        const barWidth = this.plotDimensions.width / this.samples.length;
+        const barHeight = this.plotDimensions.height;
+        for (let [index, sample] of this.samples.entries()) {
+            const x0 = index * barWidth;
+            const y0 = 0;
+            sample.draw(x0, y0, barWidth, barHeight);
+        }
+    }
+
+    /**
+     * Performs an entire render cycle of the barplot, including calculating
+     * the set of view taxa, calculating stats for each view taxon, sample
+     * filtering & sorting, view taxon filtering & sorting, and sample drawing.
+     */
+    render() {
+        // find view taxa
+        for (let sample of this.samples) {
+            sample.mapToViewTaxa(this.taxonomy);
+        }
+
+        // calculate taxa stats
+        this.calcTaxaStats();
+
+        // TODO: filter samples (abundance & metadata)
+        // TODO: sort samples (metadata)
+        // TODO: filter view taxa
+        // TODO: sort view taxa
+        // TODO: recalculate taxa stats
+
+        // draw samples
+        this.drawSamples();
+    }
 }
 
 class Sample {
@@ -189,4 +260,7 @@ class ViewTaxon {
     }
 }
 
-class Colors {}
+type PlotDimensions = {
+    height: number;
+    width: number;
+};

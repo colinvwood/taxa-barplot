@@ -48,7 +48,7 @@ export class Taxonomy {
      */
     addExpandFromAncestor(taxon: Taxon, expandToLevel: number): boolean {
         // ensure taxon level is less than the level to which to expand
-        const taxonLevel = this.getTaxonLevel(taxon);
+        const taxonLevel = this.#getTaxonLevel(taxon);
         if (taxonLevel >= expandToLevel) {
             alert("Expansion from-level must be less than to-level.");
             return false;
@@ -79,7 +79,7 @@ export class Taxonomy {
      */
     addCollapseFromDescendant(taxon: Taxon, collapseToLevel: number): boolean {
         // ensure taxon level is greater than the level to which to collpase
-        const taxonLevel = this.getTaxonLevel(taxon);
+        const taxonLevel = this.#getTaxonLevel(taxon);
         if (taxonLevel <= collapseToLevel) {
             alert("Collapse from-level must be greater than to-level.");
             return false;
@@ -301,16 +301,5 @@ export class Taxon {
         this.expandTo = null;
         this.collapseFrom = null;
         this.featureIDs = [];
-    }
-}
-
-class Feature {
-    featureID: string;
-    abundance: number;
-    taxon: Taxon;
-
-    constructor(featureID: string, taxon: Taxon) {
-        this.featureID = featureID;
-        this.taxon = taxon;
     }
 }
