@@ -1,36 +1,25 @@
-import { tsv } from "d3-fetch";
-import { Taxonomy, Taxon } from "./taxonomy.ts";
-import { Metadata } from "./metadata.ts";
-import { Colors } from "./colors.ts";
-import { Legend } from "./legend.ts";
+import { csv } from "d3-fetch";
+import { Taxonomy, Taxon } from "./taxonomy";
+import { Metadata } from "./metadata";
+import { Colors } from "./colors";
+import { Legend } from "./legend";
 
-export class SampleManager {
+class SampleManager {
     samples: Sample[];
     retainedSamples: Sample[];
     metadata: Metadata;
     taxonomy: Taxonomy;
     legend: Legend;
-    plotDimensions: PlotDimensions;
+    #plotDimensions: PlotDimensions;
     abundanceFilters: ((vt: ViewTaxon) => boolean)[];
 
-    constructor(
-        metadata: Metadata,
-        taxonomy: Taxonomy,
-        svgWidth: number,
-        svgHeight: number,
-    ) {
+    constructor() {
         this.samples = [];
         this.retainedSamples = [];
-        this.metadata = metadata;
-        this.taxonomy = taxonomy;
-
+        this.metadata = new Metadata();
+        this.taxonomy = new Taxonomy();
         this.legend = new Legend();
-
-        this.plotDimensions = {
-            width: svgWidth,
-            height: svgHeight,
-        };
-
+        this.#plotDimensions = { width: 0, height: 0 };
         this.abundanceFilters = [];
     }
 
@@ -40,20 +29,26 @@ export class SampleManager {
      * created samples in `this.samples`.
      */
     async parseFeatureTable(filepath: string) {
-        const tableLines = await tsv(filepath);
+        let tableLines = await csv(filepath);
 
-        let sampleHeader = tableLines.shift();
+        if (tableLines.length == 0) {
+            alert("Taxonomy is empty.");
+            return;
+        }
 
-        for (let [index, sampleID] of sampleHeader.entries()) {
-            if (sampleID == "OTU ID") {
-                continue;
-            }
+        const featureHeader = tableLines.shift();
 
+        for (let row of tableLines) {
+            const sampleID = row.sampleID;
             const sample = new Sample(sampleID);
-            for (let tableRow of tableLines) {
-                const abundance = Number(tableRow[index]);
+
+            for (let featureID in featureHeader) {
+                if (featureID == "sampleID") {
+                    continue;
+                }
+
+                const abundance = Number(row[featureID]);
                 if (abundance > 0) {
-                    const featureID = tableRow[0];
                     const feature = new Feature(featureID, abundance);
                     sample.features.push(feature);
                 }
@@ -61,6 +56,14 @@ export class SampleManager {
 
             this.samples.push(sample);
         }
+    }
+
+    /**
+     * Updates the width and height of `this.plotDimensions`.
+     */
+    updatePlotDimensions(width: number, height: number) {
+        this.#plotDimensions.width = width;
+        this.#plotDimensions.height = height;
     }
 
     /**
@@ -86,8 +89,8 @@ export class SampleManager {
         svgElem.innerHTML = "";
 
         // draw each sample
-        const barWidth = this.plotDimensions.width / this.samples.length;
-        const barHeight = this.plotDimensions.height;
+        const barWidth = this.#plotDimensions.width / this.samples.length;
+        const barHeight = this.#plotDimensions.height;
         for (let [index, sample] of this.samples.entries()) {
             const x0 = index * barWidth;
             const y0 = 0;
@@ -129,6 +132,8 @@ class Sample {
     constructor(sampleID: string) {
         this.sampleID = sampleID;
         this.features = [];
+        this.viewTaxa = [];
+        this.colors = new Colors();
     }
 
     /**
@@ -257,6 +262,14 @@ class ViewTaxon {
 
     constructor(taxon: Taxon) {
         this.taxon = taxon;
+        this.features = [];
+        this.abundance = -1;
+        this.relAbun = -1;
+        this.preval = -1;
+        this.prevalProp = -1;
+        this.collapsed = false;
+        this.expanded = false;
+        this.color = "";
     }
 }
 
@@ -264,3 +277,5 @@ type PlotDimensions = {
     height: number;
     width: number;
 };
+
+export const sampleManager = new SampleManager();

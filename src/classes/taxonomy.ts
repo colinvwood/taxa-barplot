@@ -5,6 +5,12 @@ export class Taxonomy {
     displayLevel: number;
     sort: string;
 
+    constructor() {
+        this.rootTaxon = new Taxon("placeholder", null);
+        this.displayLevel = 1;
+        this.sort = "";
+    }
+
     /**
      * Parses a taxonomy.tsv file into a tree of `Taxon` objects. Initializes
      * `this.rootTaxon` to the root of this tree.
@@ -21,17 +27,19 @@ export class Taxonomy {
             const featureID = taxonRecord["Feature ID"];
             const levelNames = taxonRecord["Taxon"]
                 .split(";")
-                .filter((n) => n != "");
+                .map((n: string) => n.trim())
+                .filter((n: string) => n != "");
 
             for (let [levelIndex, levelName] of levelNames.entries()) {
                 const existingChild = this.#findChildByName(
                     parentNode,
                     levelName,
                 );
-                if (existingChild) {
+                if (existingChild != null) {
                     parentNode = existingChild;
                 } else {
                     const newChild = new Taxon(levelName, parentNode);
+                    parentNode.children.push(newChild);
                     parentNode = newChild;
                 }
 
@@ -297,6 +305,7 @@ export class Taxon {
     constructor(name: string, parent: Taxon | null) {
         this.name = name;
         this.parent = parent;
+        this.children = [];
         this.selected = false;
         this.expandTo = null;
         this.collapseFrom = null;
