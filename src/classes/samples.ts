@@ -10,7 +10,7 @@ class SampleManager {
     metadata: Metadata;
     taxonomy: Taxonomy;
     legend: Legend;
-    #plotDimensions: PlotDimensions;
+    private plotDimensions: PlotDimensions;
     abundanceFilters: ((vt: ViewTaxon) => boolean)[];
 
     constructor() {
@@ -19,7 +19,7 @@ class SampleManager {
         this.metadata = new Metadata();
         this.taxonomy = new Taxonomy();
         this.legend = new Legend();
-        this.#plotDimensions = { width: 0, height: 0 };
+        this.plotDimensions = { width: 0, height: 0 };
         this.abundanceFilters = [];
     }
 
@@ -62,8 +62,8 @@ class SampleManager {
      * Updates the width and height of `this.plotDimensions`.
      */
     updatePlotDimensions(width: number, height: number) {
-        this.#plotDimensions.width = width;
-        this.#plotDimensions.height = height;
+        this.plotDimensions.width = width;
+        this.plotDimensions.height = height;
     }
 
     /**
@@ -83,18 +83,20 @@ class SampleManager {
     /**
      * Draws each sample to the barplot.
      */
-    drawSamples() {
+    private drawSamples() {
         // clear <svg> content
         const svgElem = document.querySelector(".barplot")!;
         svgElem.innerHTML = "";
 
         // draw each sample
-        const barWidth = this.#plotDimensions.width / this.samples.length;
-        const barHeight = this.#plotDimensions.height;
+        const barWidth = this.plotDimensions.width / this.samples.length;
+        const barHeight = this.plotDimensions.height;
+        const barPadding = 2;
+
         for (let [index, sample] of this.samples.entries()) {
             const x0 = index * barWidth;
             const y0 = 0;
-            sample.draw(x0, y0, barWidth, barHeight);
+            sample.draw(x0, y0, barWidth - barPadding, barHeight);
         }
     }
 
@@ -147,7 +149,7 @@ class Sample {
         for (let feature of this.features) {
             const displayTaxon = taxonomy.getDisplayTaxon(feature.featureID);
 
-            if (!viewTaxaMap.get(displayTaxon)) {
+            if (viewTaxaMap.get(displayTaxon) == null) {
                 const newViewTaxon = new ViewTaxon(displayTaxon);
                 viewTaxaMap.set(displayTaxon, newViewTaxon);
             }
@@ -219,9 +221,6 @@ class Sample {
         const svgNamespace = "http://www.w3.org/2000/svg";
 
         for (let viewTaxon of this.viewTaxa) {
-            // TODO: use `Colors`
-            const color = "#4f34eb";
-
             // create and append rect
             const rectHeight = viewTaxon.relAbun * barHeight;
             const rect = document.createElementNS(svgNamespace, "rect");
@@ -229,7 +228,13 @@ class Sample {
             rect.setAttribute("y", y0.toString());
             rect.setAttribute("width", barWidth.toString());
             rect.setAttribute("height", rectHeight.toString());
-            rect.setAttribute("fill", color);
+
+            // TODO: use `Colors`
+            if (Math.random() < 0.5) {
+                rect.setAttribute("fill", "#4f34eb");
+            } else {
+                rect.setAttribute("fill", "#cba4ab");
+            }
 
             // TODO: register click handler
 
