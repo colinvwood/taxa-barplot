@@ -2,15 +2,16 @@ import { csv } from "d3-fetch";
 
 export class Metadata {
     rows: MetadataRow[];
+    rendered: MetadataRow[];
     columnTypes: Map<string, "categorical" | "numeric">;
-    sorts: Map<string, MetadataSort>;
+    sorts: MetadataSort[];
     filters: Map<string, MetadataFilter>;
     labels: string[];
 
     constructor() {
         this.rows = [];
         this.columnTypes = new Map();
-        this.sorts = new Map();
+        this.sorts = [];
         this.filters = new Map();
         this.labels = [];
     }
@@ -19,7 +20,7 @@ export class Metadata {
      * Parses a metadata.csv file into an array of row objects and initializes
      * `this.metadata` and `this.columnTypes`.
      */
-    async parseMetadata(filepath: string) {
+    async parse(filepath: string) {
         let metadataRowsD3 = await csv(filepath);
 
         let metadataRows: MetadataRow[] = [];
@@ -44,19 +45,29 @@ export class Metadata {
             );
         }
 
-        // remove type row, save remaining rows
+        // remove types row
         this.rows = metadataRows.slice(1);
+
+        // ensure categorical columns are strings; numeric are numbers
+        for (let row of this.rows) {
+            for (let column in row) {
+                const columnType = this.columnTypes.get(column);
+                if (columnType == "categorical") {
+                    row[column] = String(row[column]);
+                } else {
+                    row[column] = Number(row[column]);
+                }
+            }
+        }
     }
 
     /**
-     *
+     * Adds a metadata sorting function to `this.sorts`. If the sorting column
+     * is categorical then levels are sorted in alphabetical order.
      */
     addSort(column: string, ascending: boolean) {
-        // determine if column categorical or numeric
         const columnType = this.columnTypes.get(column);
-
         let sortFunc;
-        // if categorical, sort levels alphabetically
         if (columnType == "categorical") {
             sortFunc = (row1: MetadataRow, row2: MetadataRow) => {
                 if (row1[column] < row2[column]) {
@@ -65,12 +76,14 @@ export class Metadata {
                     } else {
                         return 1;
                     }
-                } else {
+                } else if (row1[column] > row2[column]) {
                     if (ascending) {
                         return 1;
                     } else {
                         return -1;
                     }
+                } else {
+                    return 0;
                 }
             };
         } else {
@@ -82,32 +95,69 @@ export class Metadata {
                 }
             };
         }
-        // create name
-        // add name and function to this.sorts
+
+        this.sorts.push(sortFunc);
     }
 
     /**
-     *
+     * Removes a metadata sort by index.
      */
-    removeSort(name: string) {
-        this.sorts.delete(name);
+    removeSort(index: number) {
+        this.sorts = [
+            ...this.sorts.slice(0, index),
+            ...this.sorts.slice(index + 1),
+        ];
     }
 
     /**
-     *
+     * Adds a categorical metadata filter to `this.filters`.
      */
-    addCategoricalFilter(
-        column: string,
-        levelsKept: string[] | null,
-        levelsRemoved: string[] | null,
-    ) {}
+    addCategoricalFilter(column: string, levels: string[], keep: boolean) {
+        let filterFunc;
+        if (keep) {
+            filterFunc = (row: MetadataRow) => {
+                return levels.indexOf(row[column] as string) != -1;
+            };
+        } else {
+            filterFunc = (row: MetadataRow) => {
+                return levels.indexOf(row[column] as string) == -1;
+            };
+        }
 
-    addNumericFilter(column: string, value: number, operator: ">" | "<") {}
+        const name = `${column}_${levels.join(";")}`;
 
-    removeFilter(name: string) {}
+        this.filters.set(name, filterFunc);
+    }
 
     /**
-     * Adds a new sample label of `column`, if valid.
+     * Adds a numeric metadata column filter to `this.filters`.
+     */
+    addNumericFilter(column: string, value: number, operator: ">" | "<") {
+        let filterFunc;
+        if (operator == ">") {
+            filterFunc = (row: MetadataRow) => {
+                return (row[column] as number) > value;
+            };
+        } else {
+            filterFunc = (row: MetadataRow) => {
+                return (row[column] as number) < value;
+            };
+        }
+
+        const name = `${column}-${operator}-${value}`;
+
+        this.filters.set(name, filterFunc);
+    }
+
+    /**
+     * Removes a metadata filter by name.
+     */
+    removeFilter(name: string) {
+        this.filters.delete(name);
+    }
+
+    /**
+     * Adds a new sample label of `column`, if allowed.
      */
     addLabel(column: string) {
         if (this.labels.length >= 3) {
@@ -134,14 +184,34 @@ export class Metadata {
     }
 
     /**
-     *
+     * Apply all filters and all sorts to the metadata records, and return the
+     * final list of rendered sample IDs.
      */
-    getSampleOrdering(): string[] {
-        // apply all sorts & filters
-        // return resulting ordering
+    getRenderedSamples(): string[] {
+        let rendered = this.rows;
+
+        // apply filters
+        for (let filterFunc of this.filters.values()) {
+            rendered = rendered.filter(filterFunc);
+        }
+
+        // apply sorts
+        const finalBossSortFunc = (row1: MetadataRow, row2: MetadataRow) => {
+            let diff = this.sorts[0](row1, row2);
+
+            let sortIndex = 1;
+            while (diff == 0 && sortIndex < this.sorts.length) {
+                diff = this.sorts[sortIndex](row1, row2);
+            }
+
+            return diff;
+        };
+        rendered = rendered.sort(finalBossSortFunc);
+
+        return rendered.map((row) => row.sampleID as string);
     }
 }
 
-type MetadataSort = (row1: object, row2: object) => number;
-type MetadataFilter = (row: object) => boolean;
 type MetadataRow = { [key: string]: string | number };
+type MetadataSort = (row1: MetadataRow, row2: MetadataRow) => number;
+type MetadataFilter = (row: MetadataRow) => boolean;

@@ -163,16 +163,16 @@
           <mxGeometry y="203" width="195" height="32" as="geometry" />
         </mxCell>
         <mxCell id="TV5vEVpm7wU5M8RR6qZn-80" value="Metadata" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="540" y="690" width="210" height="150" as="geometry" />
+          <mxGeometry x="450.94" y="705" width="388.12" height="300" as="geometry" />
         </mxCell>
-        <mxCell id="TV5vEVpm7wU5M8RR6qZn-81" value="+ sampleMetadata: object[]&lt;div&gt;+ sorts: function[]&lt;/div&gt;&lt;div&gt;+ filters: function[]&lt;/div&gt;&lt;div&gt;+ metadataLabels: string[]&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="TV5vEVpm7wU5M8RR6qZn-80" vertex="1">
-          <mxGeometry y="26" width="210" height="64" as="geometry" />
+        <mxCell id="TV5vEVpm7wU5M8RR6qZn-81" value="+ rows: object[]&lt;div&gt;+ columnTypes: Map&amp;lt;string, string&amp;gt;&lt;br&gt;&lt;div&gt;+ sorts: function[]&lt;/div&gt;&lt;div&gt;+ filters: Map&amp;lt;string, function&amp;gt;&lt;/div&gt;&lt;div&gt;+ labels: string[]&lt;/div&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="TV5vEVpm7wU5M8RR6qZn-80" vertex="1">
+          <mxGeometry y="26" width="388.12" height="109" as="geometry" />
         </mxCell>
         <mxCell id="TV5vEVpm7wU5M8RR6qZn-82" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="TV5vEVpm7wU5M8RR6qZn-80" vertex="1">
-          <mxGeometry y="90" width="210" height="8" as="geometry" />
+          <mxGeometry y="135" width="388.12" height="8" as="geometry" />
         </mxCell>
-        <mxCell id="TV5vEVpm7wU5M8RR6qZn-83" value="&lt;div&gt;+ parseMetadata(filepath: string)&lt;/div&gt;+ getSampleOrdering(): string[]" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="TV5vEVpm7wU5M8RR6qZn-80" vertex="1">
-          <mxGeometry y="98" width="210" height="52" as="geometry" />
+        <mxCell id="TV5vEVpm7wU5M8RR6qZn-83" value="&lt;div&gt;+ parse(filepath: string)&lt;/div&gt;&lt;div&gt;+ addSort(column: string, ascending: boolean&lt;/div&gt;&lt;div&gt;+ removeSort(name: string)&lt;/div&gt;&lt;div&gt;+ addCategoricalFilter(column: string, levels: string[], keep: boolean)&lt;/div&gt;&lt;div&gt;+ addNumericFilter(column: string, value: number, operator: string)&lt;/div&gt;&lt;div&gt;+ removeFilter(name: string)&lt;/div&gt;&lt;div&gt;+ addLabel(column: string)&lt;/div&gt;&lt;div&gt;+ removeLabel(column: string)&lt;/div&gt;+ getSampleOrdering(): string[]" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="TV5vEVpm7wU5M8RR6qZn-80" vertex="1">
+          <mxGeometry y="143" width="388.12" height="157" as="geometry" />
         </mxCell>
         <mxCell id="wJ2dDoDA1lTtDm8QEG7H-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=0;" edge="1" parent="1" source="TV5vEVpm7wU5M8RR6qZn-108" target="TV5vEVpm7wU5M8RR6qZn-66">
           <mxGeometry relative="1" as="geometry" />
