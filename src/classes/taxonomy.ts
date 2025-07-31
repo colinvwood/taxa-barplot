@@ -1,14 +1,15 @@
 import { tsv } from "d3-fetch";
+import { Legend } from "./legend";
 
 export class Taxonomy {
     rootTaxon: Taxon;
     displayLevel: number;
-    sort: string;
+    legend: Legend;
 
     constructor() {
         this.rootTaxon = new Taxon("placeholder", null);
         this.displayLevel = 1;
-        this.sort = "";
+        this.legend = new Legend();
     }
 
     /**
@@ -328,5 +329,41 @@ export class Taxon {
         this.expandTo = null;
         this.collapseFrom = null;
         this.featureIDs = [];
+    }
+}
+
+export class ViewTaxon {
+    taxon: Taxon;
+    features: Feature[];
+    abundance: number;
+    relAbun: number;
+    meanRelAbun: number;
+    preval: number;
+    prevalProp: number;
+    collapsed: boolean;
+    expanded: boolean;
+    color: string;
+
+    constructor(taxon: Taxon) {
+        this.taxon = taxon;
+        this.features = [];
+        this.abundance = -1;
+        this.relAbun = -1;
+        this.meanRelAbun = -1;
+        this.preval = -1;
+        this.prevalProp = -1;
+        this.collapsed = false;
+        this.expanded = false;
+        this.color = "";
+    }
+}
+
+export class Feature {
+    featureID: string;
+    abundance: number;
+
+    constructor(featureID: string, abundance: number) {
+        this.featureID = featureID;
+        this.abundance = abundance;
     }
 }

@@ -1,26 +1,25 @@
 import { csv } from "d3-fetch";
-import { Taxonomy, Taxon } from "./taxonomy";
+import { Taxonomy, Taxon, ViewTaxon, Feature } from "./taxonomy";
 import { Metadata } from "./metadata";
 import { Colors } from "./colors";
-import { Legend } from "./legend";
 
 class SampleManager {
     samples: Sample[];
-    retainedSamples: Sample[];
+    renderedSamples: Sample[];
     metadata: Metadata;
     taxonomy: Taxonomy;
-    legend: Legend;
     private plotDimensions: PlotDimensions;
-    abundanceFilters: ((vt: ViewTaxon) => boolean)[];
+    vtFilters: Map<string, (vt: ViewTaxon) => boolean>;
+    vtSort: string;
 
     constructor() {
         this.samples = [];
-        this.retainedSamples = [];
+        this.renderedSamples = [];
         this.metadata = new Metadata();
         this.taxonomy = new Taxonomy();
-        this.legend = new Legend();
         this.plotDimensions = { width: 0, height: 0 };
-        this.abundanceFilters = [];
+        this.vtFilters = new Map();
+        this.vtSort = "mean relative abundance (descending)";
     }
 
     /**
@@ -30,11 +29,6 @@ class SampleManager {
      */
     async parseFeatureTable(filepath: string) {
         let tableLines = await csv(filepath);
-
-        if (tableLines.length == 0) {
-            alert("Taxonomy is empty.");
-            return;
-        }
 
         const featureHeader = tableLines.shift();
 
@@ -61,7 +55,7 @@ class SampleManager {
     /**
      * Updates the width and height of `this.plotDimensions`.
      */
-    updatePlotDimensions(width: number, height: number) {
+    setPlotDimensions(width: number, height: number) {
         this.plotDimensions.width = width;
         this.plotDimensions.height = height;
     }
@@ -78,6 +72,122 @@ class SampleManager {
             sample.tallyPrevalence(prevalenceMap);
             sample.calcPrevalence(prevalenceMap, this.samples.length);
         }
+    }
+
+    /**
+     * Adds an abundance filter to `this.fitlers`.
+     */
+    addAbundanceFilter(value: number, operator: ">" | "<") {
+        let filterFunc;
+        if (operator == ">") {
+            filterFunc = (t: ViewTaxon) => t.relAbun <= value;
+        } else {
+            filterFunc = (t: ViewTaxon) => t.relAbun >= value;
+        }
+
+        const name = `abundance-${operator}-${value}`;
+
+        this.vtFilters.set(name, filterFunc);
+    }
+
+    /**
+     * Adds a proportional or absolute prevalence filter to `this.filters`.
+     */
+    addPrevalenceFilter(
+        value: number,
+        type: "proportion" | "absolute",
+        operator: ">" | "<",
+    ) {
+        let filterFunc;
+        if (type == "proportion") {
+            if (operator == ">") {
+                filterFunc = (vt: ViewTaxon) => vt.prevalProp <= value;
+            } else {
+                filterFunc = (vt: ViewTaxon) => vt.prevalProp >= value;
+            }
+        } else {
+            if (operator == ">") {
+                filterFunc = (vt: ViewTaxon) => vt.preval <= value;
+            } else {
+                filterFunc = (vt: ViewTaxon) => vt.preval >= value;
+            }
+        }
+
+        const name = `${type}-proportion-${operator}-${value}`;
+
+        this.vtFilters.set(name, filterFunc);
+    }
+
+    /**
+     * Removes an abundance or prevalence filter by name.
+     */
+    removeFilter(name: string) {
+        this.vtFilters.delete(name);
+    }
+
+    /**
+     * Changes `this.sort` to a new `sort`, if valid.
+     */
+    setSort(sort: string) {
+        const validSorts = [
+            "mean relative abundance (descending)",
+            "mean relative abundance (ascending)",
+            "prevalence (descending)",
+            "prevalence (ascending)",
+        ];
+
+        if (validSorts.indexOf(sort) == -1) {
+            throw new Error(`The ${sort} is not valid.`);
+        }
+
+        this.vtSort = sort;
+    }
+
+    /**
+     * Returns the current view taxon sorting function.
+     */
+    getSortFunc(): (t1: ViewTaxon, t2: ViewTaxon) => number {
+        if (this.vtSort == "mean relative abundance (descending)") {
+            return (t1, t2) => t1.meanRelAbun - t2.meanRelAbun;
+        } else if (this.vtSort == "mean relative abundance (ascending)") {
+            return (t1, t2) => t2.meanRelAbun - t1.meanRelAbun;
+        } else if (this.vtSort == "prevalence (descending)") {
+            return (t1, t2) => t1.preval - t2.preval;
+        } else if (this.vtSort == "prevalence (ascending)") {
+            return (t1, t2) => t2.preval - t1.preval;
+        } else {
+            throw new Error(`The ${this.vtSort} sort is not valid.`);
+        }
+    }
+
+    /**
+     * Performs an entire render cycle of the barplot, including calculating
+     * the set of view taxa, calculating stats for each view taxon, sample
+     * filtering & sorting, view taxon filtering & sorting, and sample drawing.
+     */
+    render() {
+        // find view taxa
+        for (let sample of this.samples) {
+            sample.mapToViewTaxa(this.taxonomy);
+        }
+
+        // calculate taxa stats
+        this.calcTaxaStats();
+
+        // filter and sort samples
+        const renderedSampleIDs = this.metadata.getRenderedSampleIDs();
+        this.renderedSamples = this.samples.filter((s) => {
+            return renderedSampleIDs.indexOf(s.sampleID) != -1;
+        });
+
+        // filter and sort view taxa per sample
+        for (let sample of this.renderedSamples) {
+            sample.filterViewTaxa(this.vtFilters);
+            sample.sortViewTaxa(this.getSortFunc());
+        }
+
+        // draw samples
+        this.drawSamples();
     }
 
     /**
@@ -98,30 +208,6 @@ class SampleManager {
             const y0 = 0;
             sample.draw(x0, y0, barWidth - barPadding, barHeight);
         }
-    }
-
-    /**
-     * Performs an entire render cycle of the barplot, including calculating
-     * the set of view taxa, calculating stats for each view taxon, sample
-     * filtering & sorting, view taxon filtering & sorting, and sample drawing.
-     */
-    render() {
-        // find view taxa
-        for (let sample of this.samples) {
-            sample.mapToViewTaxa(this.taxonomy);
-        }
-
-        // calculate taxa stats
-        this.calcTaxaStats();
-
-        // TODO: filter samples (abundance & metadata)
-        // TODO: sort samples (metadata)
-        // TODO: filter view taxa
-        // TODO: sort view taxa
-        // TODO: recalculate taxa stats
-
-        // draw samples
-        this.drawSamples();
     }
 }
 
@@ -204,14 +290,22 @@ class Sample {
     }
 
     /**
-     *
+     * Filters `this.viewTaxa` with all filters stored in the sample manager's
+     * `filters` attribute.
      */
-    filterViewTaxa(filters: string) {}
+    filterViewTaxa(filters: Map<string, (vt: ViewTaxon) => boolean>) {
+        for (let filterFunc of filters.values()) {
+            this.viewTaxa = this.viewTaxa.filter(filterFunc);
+        }
+    }
 
     /**
-     *
+     * Sorts `this.viewTaxa` with the sort stored in the sample manager's
+     * `sort` attribute.
      */
-    sortViewTaxa(taxonomy: Taxonomy) {}
+    sortViewTaxa(sort: (t1: ViewTaxon, t2: ViewTaxon) => number) {
+        this.viewTaxa = this.viewTaxa.sort(sort);
+    }
 
     /**
      *
@@ -241,40 +335,6 @@ class Sample {
             svgElem.appendChild(rect);
             y0 += rectHeight;
         }
-    }
-}
-
-class Feature {
-    featureID: string;
-    abundance: number;
-
-    constructor(featureID: string, abundance: number) {
-        this.featureID = featureID;
-        this.abundance = abundance;
-    }
-}
-
-class ViewTaxon {
-    taxon: Taxon;
-    features: Feature[];
-    abundance: number;
-    relAbun: number;
-    preval: number;
-    prevalProp: number;
-    collapsed: boolean;
-    expanded: boolean;
-    color: string;
-
-    constructor(taxon: Taxon) {
-        this.taxon = taxon;
-        this.features = [];
-        this.abundance = -1;
-        this.relAbun = -1;
-        this.preval = -1;
-        this.prevalProp = -1;
-        this.collapsed = false;
-        this.expanded = false;
-        this.color = "";
     }
 }
 
