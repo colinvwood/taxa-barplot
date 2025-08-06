@@ -33,7 +33,7 @@ export class Colors {
     /**
      *
      */
-    updateColorScheme(schemeName: string) {
+    setColorScheme(schemeName: string) {
         if (!this.colorSchemes.has(schemeName)) {
             throw new Error(`The ${schemeName} color scheme does not exist.`);
         }
