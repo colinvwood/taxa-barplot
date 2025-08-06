@@ -57,8 +57,8 @@ export class Taxonomy {
      * valid range.
      */
     setDisplayLevel(displayLevel: number) {
-        const descendants = this.getDescendants(this.rootTaxon);
-        const levels = descendants.map((d) => this.getTaxonLevel(d));
+        const descendants = this.rootTaxon.getDescendants();
+        const levels = descendants.map((d) => d.getLevel());
         const maxLevel = Math.max(...levels);
 
         if (displayLevel < 1) {
@@ -75,14 +75,14 @@ export class Taxonomy {
      */
     addExpandFromAncestor(taxon: Taxon, expandToLevel: number): boolean {
         // ensure taxon level is less than the level to which to expand
-        const taxonLevel = this.getTaxonLevel(taxon);
+        const taxonLevel = taxon.getLevel();
         if (taxonLevel >= expandToLevel) {
             alert("Expansion from-level must be less than to-level.");
             return false;
         }
 
         // ensure taxon has descendants to which to expand
-        const descendantTaxa = this.getDescendantsAtLevel(taxon, expandToLevel);
+        const descendantTaxa = taxon.getDescendantsAtLevel(expandToLevel);
         if (descendantTaxa.length == 0) {
             alert(`Taxon has no descendants at level ${expandToLevel}.`);
             return false;
@@ -106,13 +106,13 @@ export class Taxonomy {
      */
     addCollapseFromDescendant(taxon: Taxon, collapseToLevel: number): boolean {
         // ensure taxon level is greater than the level to which to collpase
-        const taxonLevel = this.getTaxonLevel(taxon);
+        const taxonLevel = taxon.getLevel();
         if (taxonLevel <= collapseToLevel) {
             alert("Collapse from-level must be greater than to-level.");
             return false;
         }
 
-        const ancestor = this.getAncestorAtLevel(taxon, collapseToLevel);
+        const ancestor = taxon.getAncestorAtLevel(collapseToLevel);
 
         // scan sub tree to ensure no other expand/collapse
         if (!this.isSubTreeClear(ancestor, taxonLevel)) {
@@ -134,12 +134,12 @@ export class Taxonomy {
     getDisplayTaxon(featureID: string): Taxon {
         // find taxon by feature ID
         const featureTaxon = this.findTaxonByFeatureID(featureID);
-        const featureTaxonLevel = this.getTaxonLevel(featureTaxon);
+        const featureTaxonLevel = featureTaxon.getLevel();
 
         // map to ancestor if needed
         let taxon: Taxon;
         if (featureTaxonLevel > this.displayLevel) {
-            taxon = this.getAncestorAtLevel(featureTaxon, this.displayLevel);
+            taxon = featureTaxon.getAncestorAtLevel(this.displayLevel);
         } else {
             taxon = featureTaxon;
         }
@@ -149,11 +149,11 @@ export class Taxonomy {
             if (taxon.expandTo >= featureTaxonLevel) {
                 return featureTaxon;
             }
-            return this.getAncestorAtLevel(featureTaxon, taxon.expandTo);
+            return featureTaxon.getAncestorAtLevel(taxon.expandTo);
         }
 
         // follow collapse if present
-        const ancestors = this.getAncestors(taxon);
+        const ancestors = taxon.getAncestors();
         const collapsedAncestors = ancestors.filter((a) => {
             return (
                 a.collapseFrom != null && a.collapseFrom >= this.displayLevel
@@ -176,9 +176,9 @@ export class Taxonomy {
      * are found, false is returned; if none are found true is returned.
      */
     private isSubTreeClear(ancestor: Taxon, descendantLevel: number): boolean {
-        const descendants = this.getDescendants(ancestor);
+        const descendants = ancestor.getDescendants();
         const violators = descendants.filter((d) => {
-            const inSubTree = this.getTaxonLevel(d) <= descendantLevel;
+            const inSubTree = d.getLevel() <= descendantLevel;
             const isCollapsed = d.expandTo != null;
             const isExpanded = d.collapseFrom != null;
 
@@ -186,69 +186,6 @@ export class Taxonomy {
         });
 
         return violators.length == 0;
-    }
-
-    /**
-     * Return all descendants of `taxon`, including `taxon`.
-     */
-    getDescendants(taxon: Taxon): Taxon[] {
-        const descendants: Taxon[] = [taxon];
-
-        for (let child of taxon.children) {
-            descendants.push(...this.getDescendants(child));
-        }
-
-        return descendants;
-    }
-
-    /**
-     * Returns the descendants of `taxon` at `level` or an empty array if there
-     * are none.
-     */
-    getDescendantsAtLevel(taxon: Taxon, level: number): Taxon[] {
-        const descendants = this.getDescendants(taxon);
-        if (descendants.length == 0) {
-            return descendants;
-        }
-
-        return descendants.filter((descendant) => {
-            return this.getTaxonLevel(descendant) == level;
-        });
-    }
-
-    /**
-     * Return all ancestors of `taxon`, including `taxon`.
-     */
-    getAncestors(taxon: Taxon): Taxon[] {
-        if (taxon.parent == null) {
-            return [taxon];
-        }
-
-        return [...this.getAncestors(taxon.parent), taxon];
-    }
-
-    /**
-     * Returns the ancestor of `taxon` at level `level`.
-     */
-    getAncestorAtLevel(taxon: Taxon, level: number): Taxon {
-        if (this.getTaxonLevel(taxon) < level) {
-            throw new Error("Taxon level less than ancestor level.");
-        }
-
-        const ancestors = this.getAncestors(taxon);
-
-        const ancestorsAtLevel = ancestors.filter((ancestor) => {
-            return this.getTaxonLevel(ancestor) == level;
-        });
-
-        if (ancestorsAtLevel.length > 1) {
-            throw new Error("Multiple ancestors.");
-        }
-        if (ancestorsAtLevel.length < 1) {
-            throw new Error("No ancestor found.");
-        }
-
-        return ancestorsAtLevel[0];
     }
 
     /**
@@ -275,7 +212,7 @@ export class Taxonomy {
      * the entire taxonomy.
      */
     private findTaxonByFeatureID(featureID: string): Taxon {
-        const allTaxa = this.getDescendants(this.rootTaxon);
+        const allTaxa = this.rootTaxon.getDescendants();
         const matches = allTaxa.filter(
             (t) => t.featureIDs.indexOf(featureID) != -1,
         );
@@ -290,23 +227,6 @@ export class Taxonomy {
             throw new Error(`Feature ${featureID} not found in taxonomy.`);
         }
         return matches[0];
-    }
-
-    private getTaxonLevel(taxon: Taxon): number {
-        if (taxon.parent == null) {
-            return 1;
-        }
-
-        return this.getTaxonLevel(taxon.parent) + 1;
-    }
-
-    /**
-     * Return the full taxonomic string of `taxon`. Serves as a unique id.
-     */
-    private getFullTaxonomicString(taxon: Taxon): string {
-        const ancestors = this.getAncestors(taxon);
-
-        return ancestors.join(";");
     }
 }
 
@@ -329,6 +249,89 @@ export class Taxon {
         this.expandTo = null;
         this.collapseFrom = null;
         this.featureIDs = [];
+    }
+
+    /**
+     *
+     */
+    getLevel(): number {
+        if (this.parent == null) {
+            return 1;
+        }
+
+        return this.parent.getLevel() + 1;
+    }
+
+    /**
+     * Return all descendants of the taxon, including the taxon itself.
+     */
+    getDescendants(): Taxon[] {
+        const descendants: Taxon[] = [this];
+
+        for (let child of this.children) {
+            descendants.push(...child.getDescendants());
+        }
+
+        return descendants;
+    }
+
+    /**
+     * Returns the descendants of the taxon at `level` or an empty array if
+     * there are none.
+     */
+    getDescendantsAtLevel(level: number): Taxon[] {
+        const descendants = this.getDescendants();
+        if (descendants.length == 0) {
+            return descendants;
+        }
+
+        return descendants.filter((descendant) => {
+            return descendant.getLevel() == level;
+        });
+    }
+
+    /**
+     * Returns all ancestors of the taxon, including the taxon itself.
+     */
+    getAncestors(): Taxon[] {
+        if (this.parent == null) {
+            return [this];
+        }
+
+        return [...this.parent.getAncestors(), this];
+    }
+
+    /**
+     * Returns the ancestor of the taxon at level `level`.
+     */
+    getAncestorAtLevel(level: number): Taxon {
+        if (this.getLevel() < level) {
+            throw new Error("Taxon level less than ancestor level.");
+        }
+
+        const ancestors = this.getAncestors();
+
+        const ancestorsAtLevel = ancestors.filter((ancestor) => {
+            return ancestor.getLevel() == level;
+        });
+
+        if (ancestorsAtLevel.length > 1) {
+            throw new Error("Multiple ancestors.");
+        }
+        if (ancestorsAtLevel.length < 1) {
+            throw new Error("No ancestor found.");
+        }
+
+        return ancestorsAtLevel[0];
+    }
+
+    /**
+     * Returns the full taxonomic string of the taxon. Serves as a unique id.
+     */
+    getFullTaxonomicString(): string {
+        return this.getAncestors()
+            .map((a) => a.name)
+            .join(";");
     }
 }
 
