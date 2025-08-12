@@ -1,5 +1,6 @@
 import { csv } from "d3-fetch";
 import { Taxonomy, Taxon, ViewTaxon, Feature } from "./taxonomy";
+import { Sample } from "./sample";
 import { Metadata } from "./metadata";
 import { Colors } from "./colors";
 
@@ -8,6 +9,7 @@ class SampleManager {
     renderedSamples: Sample[];
     metadata: Metadata;
     taxonomy: Taxonomy;
+    colors: Colors;
     private plotDimensions: PlotDimensions;
     vtFilters: Map<string, (vt: ViewTaxon) => boolean>;
     vtSort: string;
@@ -17,6 +19,7 @@ class SampleManager {
         this.renderedSamples = [];
         this.metadata = new Metadata();
         this.taxonomy = new Taxonomy();
+        this.colors = new Colors();
         this.plotDimensions = { width: 0, height: 0 };
         this.vtFilters = new Map();
         this.vtSort = "mean relative abundance (descending)";
@@ -61,17 +64,34 @@ class SampleManager {
     }
 
     /**
-     * Calculates relative abundance, prevalence, and prevalence proportion for
-     * each view taxon in each sample.
+     * Calculates relative abundance, prevalence, prevalence proportion, and
+     * mean relative abundance for each view taxon in each sample.
      */
     calcTaxaStats() {
+        const prevalMap: Map<Taxon, number> = new Map();
+        const relAbunMap: Map<Taxon, number> = new Map();
+
         for (let sample of this.samples) {
             sample.calcRelAbun();
-
-            const prevalenceMap: Map<ViewTaxon, number> = new Map();
-            sample.tallyPrevalence(prevalenceMap);
-            sample.calcPrevalence(prevalenceMap, this.samples.length);
+            sample.tallyGlobalStats(prevalMap, relAbunMap);
         }
+        for (let sample of this.samples) {
+            sample.calcGlobalStats(prevalMap, relAbunMap, this.samples.length);
+        }
+    }
+
+    /**
+     *
+     */
+    getAllViewTaxa(): ViewTaxon[] {
+        const allViewTaxa: Set<ViewTaxon> = new Set();
+        for (let sample of this.renderedSamples) {
+            for (let viewTaxon of sample.viewTaxa) {
+                allViewTaxa.add(viewTaxon);
+            }
+        }
+
+        return [...allViewTaxa];
     }
 
     /**
@@ -113,7 +133,7 @@ class SampleManager {
             }
         }
 
-        const name = `${type}-proportion-${operator}-${value}`;
+        const name = `${type}-prevalence-${operator}-${value}`;
 
         this.vtFilters.set(name, filterFunc);
     }
@@ -129,14 +149,7 @@ class SampleManager {
      * Changes `this.sort` to a new `sort`, if valid.
      */
     setSort(sort: string) {
-        const validSorts = [
-            "mean relative abundance (descending)",
-            "mean relative abundance (ascending)",
-            "prevalence (descending)",
-            "prevalence (ascending)",
-        ];
-
-        if (validSorts.indexOf(sort) == -1) {
+        if (this.getValidSorts().indexOf(sort) == -1) {
             throw new Error(`The ${sort} is not valid.`);
         }
 
@@ -144,17 +157,29 @@ class SampleManager {
     }
 
     /**
+     *
+     */
+    getValidSorts(): string[] {
+        return [
+            "mean relative abundance (descending)",
+            "mean relative abundance (ascending)",
+            "prevalence (descending)",
+            "prevalence (ascending)",
+        ];
+    }
+
+    /**
      * Returns the current view taxon sorting function.
      */
     getSortFunc(): (t1: ViewTaxon, t2: ViewTaxon) => number {
         if (this.vtSort == "mean relative abundance (descending)") {
-            return (t1, t2) => t1.meanRelAbun - t2.meanRelAbun;
-        } else if (this.vtSort == "mean relative abundance (ascending)") {
             return (t1, t2) => t2.meanRelAbun - t1.meanRelAbun;
+        } else if (this.vtSort == "mean relative abundance (ascending)") {
+            return (t1, t2) => t1.meanRelAbun - t2.meanRelAbun;
         } else if (this.vtSort == "prevalence (descending)") {
-            return (t1, t2) => t1.preval - t2.preval;
-        } else if (this.vtSort == "prevalence (ascending)") {
             return (t1, t2) => t2.preval - t1.preval;
+        } else if (this.vtSort == "prevalence (ascending)") {
+            return (t1, t2) => t1.preval - t2.preval;
         } else {
             throw new Error(`The ${this.vtSort} sort is not valid.`);
         }
@@ -165,7 +190,7 @@ class SampleManager {
      * the set of view taxa, calculating stats for each view taxon, sample
      * filtering & sorting, view taxon filtering & sorting, and sample drawing.
      */
-    render() {
+    async render() {
         // find view taxa
         for (let sample of this.samples) {
             sample.mapToViewTaxa(this.taxonomy);
@@ -174,11 +199,19 @@ class SampleManager {
         // calculate taxa stats
         this.calcTaxaStats();
 
-        // filter and sort samples
+        // metadata sorts and filters
         const renderedSampleIDs = this.metadata.getRenderedSampleIDs();
         this.renderedSamples = this.samples.filter((s) => {
             return renderedSampleIDs.indexOf(s.sampleID) != -1;
         });
+        this.renderedSamples.sort((a, b) => {
+            return (
+                renderedSampleIDs.indexOf(a.sampleID) -
+                renderedSampleIDs.indexOf(b.sampleID)
+            );
+        });
+
+        // taxon abundance sample sorts
 
         // filter and sort view taxa per sample
         for (let sample of this.renderedSamples) {
@@ -193,7 +226,7 @@ class SampleManager {
     /**
      * Draws each sample to the barplot.
      */
-    private drawSamples() {
+    private async drawSamples() {
         // clear <svg> content
         const svgElem = document.querySelector(".barplot")!;
         svgElem.innerHTML = "";
@@ -203,137 +236,12 @@ class SampleManager {
         const barHeight = this.plotDimensions.height;
         const barPadding = 2;
 
-        for (let [index, sample] of this.samples.entries()) {
+        for (let [index, sample] of this.renderedSamples.entries()) {
+            await new Promise((r) => setTimeout(r, 10));
+
             const x0 = index * barWidth;
             const y0 = 0;
-            sample.draw(x0, y0, barWidth - barPadding, barHeight);
-        }
-    }
-}
-
-class Sample {
-    sampleID: string;
-    features: Feature[];
-    viewTaxa: ViewTaxon[];
-    colors: Colors;
-
-    constructor(sampleID: string) {
-        this.sampleID = sampleID;
-        this.features = [];
-        this.viewTaxa = [];
-        this.colors = new Colors();
-    }
-
-    /**
-     * Maps a sample's features to a set of "view taxa", which are the taxa
-     * that the features are displayed as in the stacked bar chart. Updates
-     * (and overwrites) `this.viewTaxa`.
-     */
-    mapToViewTaxa(taxonomy: Taxonomy) {
-        const viewTaxaMap: Map<Taxon, ViewTaxon> = new Map();
-
-        for (let feature of this.features) {
-            const displayTaxon = taxonomy.getDisplayTaxon(feature.featureID);
-
-            if (viewTaxaMap.get(displayTaxon) == null) {
-                const newViewTaxon = new ViewTaxon(displayTaxon);
-                viewTaxaMap.set(displayTaxon, newViewTaxon);
-            }
-
-            const viewTaxon = viewTaxaMap.get(displayTaxon)!;
-            viewTaxon.abundance += feature.abundance;
-            viewTaxon.features.push(feature);
-        }
-
-        this.viewTaxa = [...viewTaxaMap.values()];
-    }
-
-    /**
-     * Calculates and assigns the relative abundance of each taxon in
-     * `this.viewTaxa`.
-     */
-    calcRelAbun() {
-        const totalAbundance = this.viewTaxa.reduce((sum, taxon) => {
-            return (sum += taxon.abundance);
-        }, 0);
-
-        for (let viewTaxon of this.viewTaxa) {
-            viewTaxon.relAbun = viewTaxon.abundance / totalAbundance;
-        }
-    }
-
-    /**
-     * Updates a prevalence map with each of the taxa in `this.viewTaxa`.
-     */
-    tallyPrevalence(prevalenceMap: Map<ViewTaxon, number>) {
-        for (let viewTaxon of this.viewTaxa) {
-            if (!prevalenceMap.get(viewTaxon)) {
-                prevalenceMap.set(viewTaxon, 1);
-            } else {
-                const prevalence = prevalenceMap.get(viewTaxon) as number;
-                prevalenceMap.set(viewTaxon, prevalence + 1);
-            }
-        }
-    }
-
-    /**
-     * Uses a fully populated prevalence map to record the prevalence of each
-     * taxon in `this.viewTaxa`.
-     */
-    calcPrevalence(prevalenceMap: Map<ViewTaxon, number>, numSamples: number) {
-        for (let viewTaxon of this.viewTaxa) {
-            const prevalence = prevalenceMap.get(viewTaxon) as number;
-            const prevalenceProportion = prevalence / numSamples;
-            viewTaxon.preval = prevalence;
-            viewTaxon.prevalProp = prevalenceProportion;
-        }
-    }
-
-    /**
-     * Filters `this.viewTaxa` with all filters stored in the sample manager's
-     * `filters` attribute.
-     */
-    filterViewTaxa(filters: Map<string, (vt: ViewTaxon) => boolean>) {
-        for (let filterFunc of filters.values()) {
-            this.viewTaxa = this.viewTaxa.filter(filterFunc);
-        }
-    }
-
-    /**
-     * Sorts `this.viewTaxa` with the sort stored in the sample manager's
-     * `sort` attribute.
-     */
-    sortViewTaxa(sort: (t1: ViewTaxon, t2: ViewTaxon) => number) {
-        this.viewTaxa = this.viewTaxa.sort(sort);
-    }
-
-    /**
-     *
-     */
-    draw(x0: number, y0: number, barWidth: number, barHeight: number) {
-        const svgElem = document.querySelector(".barplot")!;
-        const svgNamespace = "http://www.w3.org/2000/svg";
-
-        for (let viewTaxon of this.viewTaxa) {
-            // create and append rect
-            const rectHeight = viewTaxon.relAbun * barHeight;
-            const rect = document.createElementNS(svgNamespace, "rect");
-            rect.setAttribute("x", x0.toString());
-            rect.setAttribute("y", y0.toString());
-            rect.setAttribute("width", barWidth.toString());
-            rect.setAttribute("height", rectHeight.toString());
-
-            // TODO: use `Colors`
-            if (Math.random() < 0.5) {
-                rect.setAttribute("fill", "#4f34eb");
-            } else {
-                rect.setAttribute("fill", "#cba4ab");
-            }
-
-            // TODO: register click handler
-
-            svgElem.appendChild(rect);
-            y0 += rectHeight;
+            sample.draw(x0, y0, barWidth - barPadding, barHeight, this.colors);
         }
     }
 }
