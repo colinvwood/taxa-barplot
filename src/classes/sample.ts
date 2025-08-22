@@ -102,8 +102,11 @@ export class Sample {
     /**
      *
      */
-    getViewTaxonRelAbun(viewTaxon: ViewTaxon): number {
-        const matches = this.viewTaxa.filter((vt) => vt == vt);
+    getViewTaxonRelAbun(viewTaxonId: string): number {
+        const matches = this.viewTaxa.filter((vt) => {
+            return vt.taxon.getFullTaxonomicString() == viewTaxonId;
+        });
+
         if (matches.length == 0) {
             return 0;
         } else if (matches.length == 1) {

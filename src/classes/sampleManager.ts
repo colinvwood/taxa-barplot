@@ -1,13 +1,14 @@
 import { csv } from "d3-fetch";
 import { Taxonomy, Taxon, ViewTaxon, Feature } from "./taxonomy";
 import { Sample } from "./sample";
+import { SampleControls } from "./sampleControls";
 import { Metadata } from "./metadata";
 import { Colors } from "./colors";
 
 class SampleManager {
     samples: Sample[];
     renderedSamples: Sample[];
-    metadata: Metadata;
+    sampleControls: SampleControls;
     taxonomy: Taxonomy;
     colors: Colors;
     private plotDimensions: PlotDimensions;
@@ -17,7 +18,7 @@ class SampleManager {
     constructor() {
         this.samples = [];
         this.renderedSamples = [];
-        this.metadata = new Metadata();
+        this.sampleControls = new SampleControls();
         this.taxonomy = new Taxonomy();
         this.colors = new Colors();
         this.plotDimensions = { width: 0, height: 0 };
@@ -199,19 +200,10 @@ class SampleManager {
         // calculate taxa stats
         this.calcTaxaStats();
 
-        // metadata sorts and filters
-        const renderedSampleIDs = this.metadata.getRenderedSampleIDs();
-        this.renderedSamples = this.samples.filter((s) => {
-            return renderedSampleIDs.indexOf(s.sampleID) != -1;
-        });
-        this.renderedSamples.sort((a, b) => {
-            return (
-                renderedSampleIDs.indexOf(a.sampleID) -
-                renderedSampleIDs.indexOf(b.sampleID)
-            );
-        });
-
-        // taxon abundance sample sorts
+        // filter and sort samples
+        this.renderedSamples = this.sampleControls.getRenderedSamples(
+            this.samples,
+        );
 
         // filter and sort view taxa per sample
         for (let sample of this.renderedSamples) {

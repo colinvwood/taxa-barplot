@@ -212,6 +212,7 @@ export class Taxonomy {
      * the entire taxonomy.
      */
     private findTaxonByFeatureID(featureID: string): Taxon {
+        // TODO: hotspot
         const allTaxa = this.rootTaxon.getDescendants();
         const matches = allTaxa.filter(
             (t) => t.featureIDs.indexOf(featureID) != -1,
