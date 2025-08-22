@@ -3,7 +3,7 @@
     import FeatureSort from "./lib/FeatureSort.svelte";
     import FeatureFilters from "./lib/FeatureFilters.svelte";
     import SampleControls from "./lib/sample-controls/SampleControls.svelte";
-    import { sampleManager } from "./classes/samples";
+    import { sampleManager } from "./classes/sampleManager";
 
     const smPromise = sampleManager.parseFeatureTable("table.csv");
 
@@ -11,7 +11,8 @@
         sampleManager.setPlotDimensions(500, 500);
 
         const tPromise = sampleManager.taxonomy.parse("taxonomy.tsv");
-        const mdPromise = sampleManager.metadata.parse("metadata.tsv");
+        const mdPromise =
+            sampleManager.sampleControls.metadata.parse("metadata.tsv");
         const cPromise = sampleManager.colors.parse("colors.csv");
 
         return Promise.all([tPromise, mdPromise, cPromise]);
