@@ -2,8 +2,8 @@ import { csv } from "d3-fetch";
 import { Taxonomy, Taxon, ViewTaxon, Feature } from "./taxonomy";
 import { Sample } from "./sample";
 import { SampleControls } from "./sampleControls";
-import { Metadata } from "./metadata";
 import { Colors } from "./colors";
+import { Plot } from "./plot";
 
 class SampleManager {
     samples: Sample[];
@@ -11,7 +11,7 @@ class SampleManager {
     sampleControls: SampleControls;
     taxonomy: Taxonomy;
     colors: Colors;
-    private plotDimensions: PlotDimensions;
+    plot: Plot;
     vtFilters: Map<string, (vt: ViewTaxon) => boolean>;
     vtSort: string;
 
@@ -21,7 +21,7 @@ class SampleManager {
         this.sampleControls = new SampleControls();
         this.taxonomy = new Taxonomy();
         this.colors = new Colors();
-        this.plotDimensions = { width: 0, height: 0 };
+        this.plot = new Plot();
         this.vtFilters = new Map();
         this.vtSort = "mean relative abundance (descending)";
     }
@@ -54,14 +54,6 @@ class SampleManager {
 
             this.samples.push(sample);
         }
-    }
-
-    /**
-     * Updates the width and height of `this.plotDimensions`.
-     */
-    setPlotDimensions(width: number, height: number) {
-        this.plotDimensions.width = width;
-        this.plotDimensions.height = height;
     }
 
     /**
@@ -212,35 +204,8 @@ class SampleManager {
         }
 
         // draw samples
-        this.drawSamples();
-    }
-
-    /**
-     * Draws each sample to the barplot.
-     */
-    private async drawSamples() {
-        // clear <svg> content
-        const svgElem = document.querySelector(".barplot")!;
-        svgElem.innerHTML = "";
-
-        // draw each sample
-        const barWidth = this.plotDimensions.width / this.samples.length;
-        const barHeight = this.plotDimensions.height;
-        const barPadding = 2;
-
-        for (let [index, sample] of this.renderedSamples.entries()) {
-            await new Promise((r) => setTimeout(r, 10));
-
-            const x0 = index * barWidth;
-            const y0 = 0;
-            sample.draw(x0, y0, barWidth - barPadding, barHeight, this.colors);
-        }
+        this.plot.drawSamples(this.renderedSamples, this.colors);
     }
 }
-
-type PlotDimensions = {
-    height: number;
-    width: number;
-};
 
 export const sampleManager = new SampleManager();
