@@ -1,5 +1,6 @@
 import { Taxonomy, Taxon, Feature, ViewTaxon } from "./taxonomy";
 import { Colors } from "./colors";
+import type { FeatureFilter, FeatureSort } from "./featureControls";
 
 export class Sample {
     sampleID: string;
@@ -116,22 +117,14 @@ export class Sample {
         }
     }
 
-    /**
-     * Filters `this.viewTaxa` with all filters stored in the sample manager's
-     * `filters` attribute.
-     */
-    filterViewTaxa(filters: Map<string, (vt: ViewTaxon) => boolean>) {
-        for (let filterFunc of filters.values()) {
-            this.viewTaxa = this.viewTaxa.filter(filterFunc);
+    filterViewTaxa(filters: FeatureFilter[]) {
+        for (let filter of filters) {
+            this.viewTaxa = this.viewTaxa.filter(filter.func);
         }
     }
 
-    /**
-     * Sorts `this.viewTaxa` with the sort stored in the sample manager's
-     * `sort` attribute.
-     */
-    sortViewTaxa(sort: (t1: ViewTaxon, t2: ViewTaxon) => number) {
-        this.viewTaxa = this.viewTaxa.sort(sort);
+    sortViewTaxa(sort: FeatureSort) {
+        this.viewTaxa = this.viewTaxa.sort(sort.func);
     }
 
     /**
