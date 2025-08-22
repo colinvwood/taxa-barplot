@@ -8,8 +8,6 @@
     const smPromise = sampleManager.parseFeatureTable("table.csv");
 
     const parsedPromise = smPromise.then((r) => {
-        sampleManager.setPlotDimensions(500, 500);
-
         const tPromise = sampleManager.taxonomy.parse("taxonomy.tsv");
         const mdPromise =
             sampleManager.sampleControls.metadata.parse("metadata.tsv");
