@@ -14,8 +14,6 @@ class SampleManager {
     taxonomy: Taxonomy;
     colors: Colors;
     plot: Plot;
-    vtFilters: Map<string, (vt: ViewTaxon) => boolean>;
-    vtSort: string;
 
     constructor() {
         this.samples = [];
@@ -25,8 +23,6 @@ class SampleManager {
         this.taxonomy = new Taxonomy();
         this.colors = new Colors();
         this.plot = new Plot();
-        this.vtFilters = new Map();
-        this.vtSort = "mean relative abundance (descending)";
     }
 
     /**

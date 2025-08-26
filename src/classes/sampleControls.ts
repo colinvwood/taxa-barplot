@@ -98,12 +98,12 @@ export class SampleControls {
     }
 
     addAbundanceFilter(
-        viewTaxon: ViewTaxon,
+        viewTaxonId: string,
         value: number,
         operator: ">" | "<",
     ) {
         const filterFunc = (sample: Sample) => {
-            const viewTaxonAbun = sample.getViewTaxonRelAbun(viewTaxon);
+            const viewTaxonAbun = sample.getViewTaxonRelAbun(viewTaxonId);
             if (operator == ">") {
                 return !(viewTaxonAbun > value);
             } else {
@@ -111,8 +111,7 @@ export class SampleControls {
             }
         };
 
-        const viewTaxonName = viewTaxon.taxon.getFullTaxonomicString();
-        const name = `${viewTaxonName} ${operator} ${value}`;
+        const name = `${viewTaxonId} ${operator} ${value}`;
 
         const filter: SampleFilter = {
             name: name,
@@ -131,8 +130,21 @@ export class SampleControls {
         ];
     }
 
-    addLabel() {}
-    removeLabel() {}
+    addLabel(column: string) {
+        this.labels.push(column);
+    }
+
+    setLabels(labels: string[]) {
+        this.labels = labels;
+    }
+
+    removeLabel(column: string) {
+        const index = this.labels.indexOf(column);
+        this.labels = [
+            ...this.labels.slice(0, index),
+            ...this.labels.slice(index + 1),
+        ];
+    }
 
     updateSortOrder(sortNames: string[]) {
         if (this.sorts.length == 0) {
