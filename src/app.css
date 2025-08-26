@@ -1,1 +1,21 @@
 @import "tailwindcss";
+
+.select-primary {
+    @apply bg-gray-200 border-2 border-gray-300 rounded-lg;
+    @apply focus:ring-blue-500 focus:border-blue-500 hover:cursor-pointer;
+    @apply text-gray-900 text-sm;
+    @apply h-7 max-w-56 px-2 py-0.5;
+}
+
+.button-primary {
+    @apply bg-blue-100 border-2 border-gray-200 rounded-lg;
+    @apply hover:bg-blue-50 hover:cursor-pointer;
+    @apply text-gray-900 text-sm;
+    @apply h-8 px-3 py-1;
+}
+
+.input-primary {
+    @apply bg-gray-200 border-1 border-gray-300 rounded-lg;
+    @apply focus:ring-blue-500 focus:border-blue-500;
+    @apply text-gray-900 text-sm;
+}

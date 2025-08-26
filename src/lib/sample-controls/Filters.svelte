@@ -90,7 +90,7 @@
         sampleManager.sampleControls.metadata.getColumnNamesOfType("numeric");
 </script>
 
-<div>
+<div class="">
     <h2>Add a Categorical Metadata Filter</h2>
     <select class="" name="column" bind:value={categoricalForm.column}>
         {#each categoricalColumns as name}

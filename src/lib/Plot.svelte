@@ -10,6 +10,6 @@
     });
 </script>
 
-<svg class="barplot" width="500" height="500"></svg>
-
-<style></style>
+<div class="border-solid border-blue-500">
+    <svg class="barplot" width="500" height="500"></svg>
+</div>

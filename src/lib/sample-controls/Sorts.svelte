@@ -77,30 +77,85 @@
     }
 </script>
 
-<div class="w-[200px] flex flex-col border m-2">
-    <h2 class="font-bold">Add a Metadata Sort</h2>
-    <select class="" name="sort" bind:value={sortColumn}>
+<div class="grid auto-rows-min grid-cols-3 gap-x-2 gap-y-2">
+    <h1 class="row-start-1 col-start-2 justify-self-center text-lg font-bold">
+        Sample Sorts
+    </h1>
+
+    <p
+        class="row-start-2 col-start-2 justify-self-center text-sm font-bold text-center"
+    >
+        Sort by Metadata
+    </p>
+
+    <label class="row-start-3 col-start-1 justify-self-end" for="sortColumn">
+        Column:
+    </label>
+    <select
+        class="row-start-3 col-start-2 select-primary"
+        name="sortColumn"
+        bind:value={sortColumn}
+    >
         {#each sampleManager.sampleControls.metadata.getColumnNames() as name}
             <option value={name}>{name}</option>
         {/each}
     </select>
-    <select name="sort" bind:value={mdSortDirection}>
+
+    <label class="row-start-4 col-start-1 justify-self-end" for="sortDirection">
+        Direction:
+    </label>
+    <select
+        class="row-start-4 col-start-2 select-primary"
+        name="sortDirection"
+        bind:value={mdSortDirection}
+    >
         <option value="ascending">ascending</option>
         <option value="descending">descending</option>
     </select>
-    <button onclick={handleAddMetadataSort}>Add</button>
 
-    <h2 class="font-bold">Add a Taxon Abundance Sort</h2>
-    <select class="" name="sort" bind:value={sortTaxon}>
+    <button
+        class="row-start-5 col-start-2 justify-self-center button-primary"
+        onclick={handleAddMetadataSort}>Add</button
+    >
+
+    <p
+        class="p-0 m-0 row-start-6 col-start-2 justify-self-center text-sm font-bold leading-none text-center"
+    >
+        Sort by Taxon Abundance
+    </p>
+
+    <label class="row-start-7 col-start-1 justify-self-end" for="sortTaxon">
+        Taxon:
+    </label>
+    <select
+        class="row-start-7 col-start-2 select-primary"
+        name="sortTaxon"
+        bind:value={sortTaxon}
+    >
         {#each viewTaxaNames as name}
             <option value={name}>{name}</option>
         {/each}
     </select>
-    <select name="sort" bind:value={abunSortDirection}>
+    <label
+        class="row-start-8 col-start-1 justify-self-end"
+        for="taxonDirection"
+    >
+        Direction:
+    </label>
+    <select
+        class="row-start-8 col-start-2 select-primary"
+        name="taxonDirection"
+        bind:value={abunSortDirection}
+    >
         <option value="ascending">ascending</option>
         <option value="descending">descending</option>
     </select>
-    <button onclick={handleAddAbundanceSort}>Add</button>
+    <button
+        class="row-start-9 col-start-2 justify-self-center button-primary"
+        onclick={handleAddAbundanceSort}
+    >
+        Add
+    </button>
 
     <ul>
         {#each sorts as sort, index}

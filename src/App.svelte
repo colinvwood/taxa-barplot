@@ -1,8 +1,7 @@
 <script lang="ts">
     import Plot from "./lib/Plot.svelte";
-    import FeatureSort from "./lib/FeatureSort.svelte";
-    import FeatureFilters from "./lib/FeatureFilters.svelte";
-    import SampleControls from "./lib/sample-controls/SampleControls.svelte";
+    import FeatureControls from "./lib/FeatureControls.svelte";
+    import SampleControls from "./lib/SampleControls.svelte";
     import { sampleManager } from "./classes/sampleManager";
 
     const smPromise = sampleManager.parseFeatureTable("table.csv");
@@ -20,10 +19,13 @@
 {#await parsedPromise}
     <p>Loading...</p>
 {:then}
-    <Plot />
-    <FeatureSort />
-    <FeatureFilters />
-    <SampleControls />
+    <div class="flex flex-col w-[100%] justify-around">
+        <Plot />
+        <div class="flex flex-row justify-around">
+            <FeatureControls />
+            <SampleControls />
+        </div>
+    </div>
 {:catch error}
     <p>An error occured: {error}</p>
 {/await}
