@@ -22,9 +22,9 @@
 {#await parsedPromise}
     <p>Loading...</p>
 {:then}
-    <div class="flex flex-col justify-around">
+    <div class="flex flex-col justify-around w-[100%]">
         <Plot />
-        <div class="flex flex-row flex-wrap justify-around items-start">
+        <div class="flex flex-row justify-around items-start">
             <FeatureSort />
             <FeatureFilters />
             <SampleSorts />

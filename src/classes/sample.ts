@@ -149,7 +149,7 @@ export class Sample {
         barHeight: number,
         colors: Colors,
     ) {
-        const svgElem = document.querySelector(".barplot")!;
+        const svgElem = document.querySelector("#barplot")!;
         const svgNamespace = "http://www.w3.org/2000/svg";
 
         for (let viewTaxon of this.viewTaxa) {
