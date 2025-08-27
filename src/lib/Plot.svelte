@@ -3,13 +3,12 @@
     import { sampleManager } from "../classes/sampleManager";
 
     onMount(() => {
-        sampleManager.plot.setDimensions(500, 500);
-        sampleManager.taxonomy.setDisplayLevel(4);
+        sampleManager.taxonomy.setDisplayLevel(6);
         sampleManager.colors.setColorScheme("before-dawn");
         sampleManager.render();
     });
 </script>
 
-<div class="border-solid border-blue-500">
-    <svg class="barplot" width="500" height="500"></svg>
+<div class="border-2 border-blue-300 w-[75%] h-[50rem] overflow-scroll">
+    <svg id="barplot" class="h-[49rem] border-2 border-gray-300"></svg>
 </div>
