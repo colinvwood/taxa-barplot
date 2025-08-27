@@ -5,10 +5,10 @@
     let sorts: string[] = $state([]);
 
     let sortColumn: string = $state("");
-    let mdSortDirection: string = $state("ascending");
+    let mdSortDirection: string = $state("");
 
     let sortTaxon: string = $state("");
-    let abunSortDirection: string = $state("ascending");
+    let abunSortDirection: string = $state("");
 
     let dragIndex: number | null = $state(null);
 
@@ -35,11 +35,11 @@
     function handleAddAbundanceSort(event: Event) {
         sampleManager.sampleControls.addAbundanceSort(
             sortTaxon,
-            abunSortDirection == "ascending",
+            abunSortDirection == "",
         );
 
         sortTaxon = "";
-        abunSortDirection = "ascending";
+        abunSortDirection = "";
 
         sorts = sampleManager.sampleControls.sorts.map((s) => s.name);
         sampleManager.render();
@@ -77,13 +77,15 @@
     }
 </script>
 
-<div class="grid auto-rows-min grid-cols-3 gap-x-2 gap-y-2">
+<div
+    class="grid auto-rows-min grid-cols-3 gap-2 w-[24rem] border-2 border-blue-200"
+>
     <h1 class="row-start-1 col-start-2 justify-self-center text-lg font-bold">
         Sample Sorts
     </h1>
 
     <p
-        class="row-start-2 col-start-2 justify-self-center text-sm font-bold text-center"
+        class="row-start-2 col-start-1 col-end-4 justify-self-center text-sm font-bold text-center"
     >
         Sort by Metadata
     </p>
@@ -105,7 +107,7 @@
         Direction:
     </label>
     <select
-        class="row-start-4 col-start-2 select-primary"
+        class="row-start-4 col-start-2 select-primary w-[12rem]"
         name="sortDirection"
         bind:value={mdSortDirection}
     >
@@ -119,7 +121,7 @@
     >
 
     <p
-        class="p-0 m-0 row-start-6 col-start-2 justify-self-center text-sm font-bold leading-none text-center"
+        class="p-0 m-0 row-start-6 col-start-1 col-end-4 justify-self-center mt-4 text-sm font-bold leading-none text-center"
     >
         Sort by Taxon Abundance
     </p>
@@ -128,7 +130,7 @@
         Taxon:
     </label>
     <select
-        class="row-start-7 col-start-2 select-primary"
+        class="row-start-7 col-start-2 select-primary w-[12rem]"
         name="sortTaxon"
         bind:value={sortTaxon}
     >
@@ -143,7 +145,7 @@
         Direction:
     </label>
     <select
-        class="row-start-8 col-start-2 select-primary"
+        class="row-start-8 col-start-2 select-primary w-[12rem]"
         name="taxonDirection"
         bind:value={abunSortDirection}
     >
@@ -157,20 +159,32 @@
         Add
     </button>
 
-    <ul>
-        {#each sorts as sort, index}
-            <li
-                class="p-2 border mb-1 cursor-move"
-                draggable="true"
-                ondragstart={(e) => handleDragStart(e, index)}
-                ondragover={handleDragOver}
-                ondrop={(e) => handleDragDrop(e, index)}
-            >
-                <p>{sort}</p>
-                <button onclick={(e) => handleRemoveSort(e, sort)}>
-                    Remove
-                </button>
-            </li>
-        {/each}
-    </ul>
+    <p
+        class="row-start-10 col-start-2 justify-self-center mt-4 text-sm font-bold"
+    >
+        Applied Sorts
+    </p>
+    <div
+        class="row-start-11 col-start-1 col-end-4 justify-self-center w-[20rem] h-[10rem] bg-gray-50 border-2 border-gray-300 rounded-lg overflow-scroll"
+    >
+        <ul>
+            {#each sorts as sort, index}
+                <li
+                    class="flex justify-between items-center mx-2 mt-1 p-2 bg-white border-2 border-gray-300 rounded-lg cursor-move"
+                    draggable="true"
+                    ondragstart={(e) => handleDragStart(e, index)}
+                    ondragover={handleDragOver}
+                    ondrop={(e) => handleDragDrop(e, index)}
+                >
+                    <p class="text-sm max-w-[15rem] truncate">{sort}</p>
+                    <button
+                        class="bg-red-400 rounded-lg w-6 h-6 hover:cursor-pointer"
+                        onclick={(e) => handleRemoveSort(e, sort)}
+                    >
+                        X
+                    </button>
+                </li>
+            {/each}
+        </ul>
+    </div>
 </div>
