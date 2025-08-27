@@ -1,6 +1,6 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.0.6 Chrome/138.0.7204.100 Electron/37.2.3 Safari/537.36" version="28.0.6">
   <diagram name="Page-1" id="ScEAED-juJEtONYMeBrp">
-    <mxGraphModel dx="2265" dy="1556" grid="1" gridSize="15" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1954" dy="1363" grid="1" gridSize="15" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -59,16 +59,16 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="TV5vEVpm7wU5M8RR6qZn-25" value="Sample" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="965" y="210" width="450" height="240" as="geometry" />
+          <mxGeometry x="965" y="210" width="450" height="255" as="geometry" />
         </mxCell>
-        <mxCell id="TV5vEVpm7wU5M8RR6qZn-26" value="+ sampleID: string&lt;div&gt;+ features: Feature[]&lt;/div&gt;&lt;div&gt;- viewTaxa: ViewTaxon[]&lt;/div&gt;&lt;div&gt;+ colors: Colors&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="TV5vEVpm7wU5M8RR6qZn-25" vertex="1">
-          <mxGeometry y="26" width="450" height="79" as="geometry" />
+        <mxCell id="TV5vEVpm7wU5M8RR6qZn-26" value="+ sampleID: string&lt;div&gt;+ features: Feature[]&lt;/div&gt;&lt;div&gt;+ viewTaxa: ViewTaxon[]&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="TV5vEVpm7wU5M8RR6qZn-25" vertex="1">
+          <mxGeometry y="26" width="450" height="64" as="geometry" />
         </mxCell>
         <mxCell id="TV5vEVpm7wU5M8RR6qZn-27" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="TV5vEVpm7wU5M8RR6qZn-25" vertex="1">
-          <mxGeometry y="105" width="450" height="8" as="geometry" />
+          <mxGeometry y="90" width="450" height="8" as="geometry" />
         </mxCell>
-        <mxCell id="TV5vEVpm7wU5M8RR6qZn-28" value="&lt;div&gt;+ mapToViewTaxa(taxonomy: Taxonomy)&lt;/div&gt;&lt;div&gt;+ calcRelAbun()&lt;/div&gt;&lt;div&gt;+ tallyGlobalStats(prevalMap: Map, relAbunMap: Map)&lt;/div&gt;&lt;div&gt;+ calcGlobalStats(prevalMap: Map, relAbunMap: Map, numSamples: number)&lt;/div&gt;&lt;div&gt;+ filterViewTaxa(filters: function[])&lt;/div&gt;&lt;div&gt;+ sortViewTaxa(sort: function)&lt;/div&gt;&lt;div&gt;+ draw()&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="TV5vEVpm7wU5M8RR6qZn-25" vertex="1">
-          <mxGeometry y="113" width="450" height="127" as="geometry" />
+        <mxCell id="TV5vEVpm7wU5M8RR6qZn-28" value="&lt;div&gt;+ mapToViewTaxa(taxonomy: Taxonomy)&lt;/div&gt;&lt;div&gt;+ calcRelAbun()&lt;/div&gt;&lt;div&gt;+ tallyGlobalStats(prevalMap: Map, relAbunMap: Map)&lt;/div&gt;&lt;div&gt;+ calcGlobalStats(prevalMap: Map, relAbunMap: Map, numSamples: number)&lt;/div&gt;&lt;div&gt;+ getViewTaxonRelAbun(viewTaxonId: string): number&lt;/div&gt;&lt;div&gt;+ getRelAbunSum(): number&lt;/div&gt;&lt;div&gt;+ filterViewTaxa(filters: function[])&lt;/div&gt;&lt;div&gt;+ sortViewTaxa(sort: function)&lt;/div&gt;&lt;div&gt;+ draw()&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="TV5vEVpm7wU5M8RR6qZn-25" vertex="1">
+          <mxGeometry y="98" width="450" height="157" as="geometry" />
         </mxCell>
         <mxCell id="TV5vEVpm7wU5M8RR6qZn-39" value="Feature" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="1485" y="480" width="175" height="130" as="geometry" />

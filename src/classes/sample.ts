@@ -117,6 +117,18 @@ export class Sample {
         }
     }
 
+    /**
+     * Returns the sum of the relative abundances of the view taxa of the
+     * sample. Useful to know for displaying the abundance axis after taxon
+     * filtering has been performed.
+     */
+    getRelAbunSum(): number {
+        return this.viewTaxa.reduce(
+            (sum: number, vt: ViewTaxon) => sum + vt.relAbun,
+            0,
+        );
+    }
+
     filterViewTaxa(filters: FeatureFilter[]) {
         for (let filter of filters) {
             this.viewTaxa = this.viewTaxa.filter(filter.func);
