@@ -53,7 +53,9 @@
     }
 </script>
 
-<div class="grid grid-cols-3 grid-rows-10 gap-2 mt-4">
+<div
+    class="grid grid-cols-3 auto-rows-min gap-2 w-[24rem] h-[26rem] border-2 border-blue-200"
+>
     <h1 class="row-start-1 col-start-2 justify-self-center font-bold text-lg">
         Taxon Filters
     </h1>
@@ -62,7 +64,7 @@
         Type:
     </label>
     <select
-        class="row-start-2 col-start-2 justify-self-start select-primary"
+        class="row-start-2 col-start-2 select-primary w-[12rem]"
         name="filterType"
         bind:value={form.type}
     >
@@ -78,7 +80,7 @@
         Relationship:
     </label>
     <select
-        class="row-start-3 col-start-2 justify-self-start select-primary"
+        class="row-start-3 col-start-2 select-primary w-[12rem]"
         name="filterOperator"
         bind:value={form.operator}
     >
@@ -90,7 +92,7 @@
         Value:
     </label>
     <input
-        class="row-start-4 col-start-2 justify-self-start input-primary"
+        class="row-start-4 col-start-2 input-primary w-[12rem]"
         type="text"
         name="filterValue"
         bind:value={form.value}
@@ -103,17 +105,15 @@
         Add Filter
     </button>
 
-    <h2
-        class="row-start-6 col-start-2 justify-self-center text-sm font-bold mt-2"
-    >
+    <p class="row-start-6 col-start-2 justify-self-center widget-subheading">
         Applied Filters
-    </h2>
+    </p>
     <div
-        class="row-start-7 row-end-11 col-start-1 col-end-4 max-h-36 w-[70%] justify-self-center bg-gray-50 border-2 border-gray-300 rounded-sm overflow-scroll"
+        class="row-start-7 row-end-11 col-start-1 col-end-4 w-[20rem] h-[10rem] justify-self-center bg-gray-50 border-2 border-gray-300 rounded-sm overflow-scroll"
     >
         {#each filters as filter}
             <div
-                class="flex justify-between items-center mx-2 mt-1 px-2 py-2 min-h-8 bg-white border-2 border-gray-300 rounded-lg"
+                class="flex justify-between items-center mx-2 mt-1 p-2 min-h-8 bg-white border-2 border-gray-300 rounded-lg"
             >
                 <p class="text-sm">
                     {filter}

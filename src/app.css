@@ -4,7 +4,7 @@
     @apply bg-gray-200 border-2 border-gray-300 rounded-lg;
     @apply focus:ring-blue-500 focus:border-blue-500 hover:cursor-pointer;
     @apply text-gray-900 text-sm;
-    @apply h-7 max-w-56 px-2 py-0.5;
+    @apply h-[1.75rem] w-[12rem] px-2 py-0.5;
 }
 
 .button-primary {
@@ -15,7 +15,12 @@
 }
 
 .input-primary {
-    @apply bg-gray-200 border-1 border-gray-300 rounded-lg;
+    @apply bg-gray-200 border-2 border-gray-300 rounded-lg;
     @apply focus:ring-blue-500 focus:border-blue-500;
     @apply text-gray-900 text-sm;
+    @apply h-[1.75rem] max-w-56 pl-2;
+}
+
+.widget-subheading {
+    @apply justify-self-center text-sm font-bold text-center mt-[0.5rem];
 }
