@@ -1,12 +1,18 @@
 <script lang="ts">
     import { sampleManager } from "../../classes/sampleManager";
 
-    let labels: string[] = $state([]);
+    let labels: string[] = $state(sampleManager.sampleControls.labels);
     let formLabel: string = $state("");
 
     const columnNames = sampleManager.sampleControls.metadata.getColumnNames();
 
     function handleAddLabel(event: Event) {
+        if (labels.length >= 3) {
+            alert("Sorry, no more than three labels are allowed.");
+            formLabel = "";
+            return;
+        }
+
         sampleManager.sampleControls.addLabel(formLabel);
         labels = sampleManager.sampleControls.labels;
         formLabel = "";

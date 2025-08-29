@@ -67,11 +67,21 @@ export class Metadata {
         return Object.keys(this.rows[0]);
     }
 
-    /**
-     */
     getColumnNamesOfType(type: "categorical" | "numeric"): string[] {
         const columnNames = this.getColumnNames();
         return columnNames.filter((cn) => this.columnTypes.get(cn) == type);
+    }
+
+    getColumnValue(column: string, sampleId: string): string {
+        const sampleRows = this.rows.filter((s) => s.sampleID == sampleId);
+
+        if (sampleRows.length != 1) {
+            throw new Error("Found more or less than 1 matching sample row.");
+        }
+
+        const sampleRow = sampleRows[0];
+
+        return sampleRow[column].toString();
     }
 
     /**

@@ -5,6 +5,7 @@
     import SampleLabels from "./lib/sample-controls/SampleLabels.svelte";
     import FeatureFilters from "./lib/feature-controls/FeatureFilters.svelte";
     import FeatureSort from "./lib/feature-controls/FeatureSort.svelte";
+    import SelectedTaxon from "./lib/SelectedTaxon.svelte";
     import { sampleManager } from "./classes/sampleManager";
 
     const smPromise = sampleManager.parseFeatureTable("table.csv");
@@ -24,12 +25,13 @@
 {:then}
     <div class="flex flex-col justify-around w-[100%]">
         <Plot />
-        <div class="flex flex-row justify-around items-start">
+        <div class="flex flex-row flex-wrap justify-start items-start">
             <FeatureSort />
             <FeatureFilters />
             <SampleSorts />
             <SampleFilters />
             <SampleLabels />
+            <SelectedTaxon />
         </div>
     </div>
 {:catch error}

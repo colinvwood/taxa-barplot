@@ -1,6 +1,6 @@
 import { Sample } from "./sample";
 import { Colors } from "./colors";
-import { Metadata } from "./metadata";
+import { SampleControls } from "./sampleControls";
 
 export class Plot {
     dims: PlotDimensions;
@@ -9,20 +9,23 @@ export class Plot {
 
     constructor() {
         this.dims = {
-            barWidth: 15,
+            barWidth: 20,
             barPadding: 2,
-            margin: 75,
+            marginTop: 75,
+            marginRight: 50,
+            marginBottom: 100,
+            marginLeft: 75,
             axisOffset: 10,
         };
         this.dynamicAxis = false;
         this.filteredGray = false;
     }
 
-    getBarHeight(): number {
+    getPlotHeight(): number {
         const svgElem = document.querySelector("#barplot")!;
         const rect = svgElem.getBoundingClientRect();
 
-        return rect.height - 2 * this.dims.margin;
+        return rect.height - this.dims.marginTop - this.dims.marginBottom;
     }
 
     getYAxisTickInterval(yAxisMax: number): number {
@@ -38,48 +41,55 @@ export class Plot {
     /**
      *
      */
-    async drawSamples(samples: Sample[], colors: Colors) {
+    async drawSamples(
+        samples: Sample[],
+        colors: Colors,
+        sampleControls: SampleControls,
+        eventBus: EventTarget,
+    ) {
         // clear <svg> content
         const svgElem = document.querySelector("#barplot")!;
         svgElem.innerHTML = "";
 
         // resize svg
         const width =
-            2 * this.dims.margin + samples.length * this.dims.barWidth;
+            this.dims.marginLeft +
+            this.dims.marginRight +
+            samples.length * this.dims.barWidth;
         svgElem.setAttribute("width", width.toString());
 
         // draw each sample
-        const barHeight = this.getBarHeight();
         for (let [index, sample] of samples.entries()) {
             await new Promise((r) => setTimeout(r, 6));
 
-            const x0 = this.dims.margin + index * this.dims.barWidth;
-            const y0 = this.dims.margin;
+            const x0 = this.dims.marginLeft + index * this.dims.barWidth;
+            const y0 = this.dims.marginTop;
             sample.draw(
                 x0,
                 y0,
                 this.dims.barWidth - this.dims.barPadding,
-                this.getBarHeight(),
+                this.getPlotHeight(),
                 colors,
+                eventBus,
             );
         }
 
         this.drawYAxis(samples);
-        // this.drawXAxis(samples, labels, metadata);
+        this.drawXAxis(samples, sampleControls);
     }
 
     /**
      *
      */
     drawYAxis(samples: Sample[]) {
-        const barHeight = this.getBarHeight();
+        const plotHeight = this.getPlotHeight();
 
         // draw axis
         this.drawSvgLine(
-            this.dims.margin - this.dims.axisOffset,
-            this.dims.margin - this.dims.axisOffset,
-            this.dims.margin,
-            this.dims.margin + barHeight,
+            this.dims.marginLeft - this.dims.axisOffset,
+            this.dims.marginLeft - this.dims.axisOffset,
+            this.dims.marginTop,
+            this.dims.marginTop + plotHeight,
             2,
         );
 
@@ -98,12 +108,13 @@ export class Plot {
         let yPosition;
         while (numTicks >= 0) {
             const tickValue = Number((numTicks * tickInterval).toFixed(3));
-            yPosition = this.dims.margin + (barHeight - tickValue * barHeight);
+            yPosition =
+                this.dims.marginTop + (plotHeight - tickValue * plotHeight);
 
             // tick
             this.drawSvgLine(
-                this.dims.margin - this.dims.axisOffset,
-                this.dims.margin - this.dims.axisOffset - 5,
+                this.dims.marginLeft - this.dims.axisOffset,
+                this.dims.marginLeft - this.dims.axisOffset - 5,
                 yPosition,
                 yPosition,
                 2,
@@ -111,18 +122,55 @@ export class Plot {
 
             // tick number
             this.drawSvgText(
-                tickValue.toString(),
-                this.dims.margin - this.dims.axisOffset - 10,
+                [tickValue.toString()],
+                this.dims.marginLeft - this.dims.axisOffset - 10,
                 yPosition,
-                12,
-                "end",
+                "y",
             );
 
             numTicks--;
         }
     }
 
-    drawXAxis(samples: Sample[], labels: string[], metadata: Metadata) {}
+    drawXAxis(samples: Sample[], sampleControls: SampleControls) {
+        const plotWidth = samples.length * this.dims.barWidth;
+        const plotHeight = this.getPlotHeight();
+
+        // draw axis
+        this.drawSvgLine(
+            this.dims.marginLeft,
+            this.dims.marginLeft + plotWidth,
+            this.dims.marginTop + plotHeight + this.dims.axisOffset,
+            this.dims.marginTop + plotHeight + this.dims.axisOffset,
+            2,
+        );
+
+        // draw axis ticks
+        for (let [i, sample] of samples.entries()) {
+            const xPosition =
+                this.dims.marginLeft +
+                i * this.dims.barWidth +
+                this.dims.barWidth / 2;
+
+            // tick
+            this.drawSvgLine(
+                xPosition,
+                xPosition,
+                this.dims.marginTop + plotHeight + this.dims.axisOffset,
+                this.dims.marginTop + plotHeight + this.dims.axisOffset + 5,
+                2,
+            );
+
+            // labels
+            const labels = sampleControls.getSampleLabels(sample.sampleID);
+            this.drawSvgText(
+                labels,
+                xPosition,
+                this.dims.marginTop + plotHeight + this.dims.axisOffset + 10,
+                "x",
+            );
+        }
+    }
 
     drawSvgLine(
         x1: number,
@@ -147,26 +195,37 @@ export class Plot {
         svgElem.appendChild(line);
     }
 
-    drawSvgText(
-        content: string,
-        x: number,
-        y: number,
-        fontSize: number,
-        textAnchor: string = "start",
-    ) {
+    drawSvgText(content: string[], x: number, y: number, axis: "x" | "y") {
         const svgElem = document.querySelector("#barplot")!;
         const svgNamespace = "http://www.w3.org/2000/svg";
 
-        const text = document.createElementNS(svgNamespace, "text");
+        const fontSize = this.getRemInPixels(0.9 / content.length);
 
-        text.innerHTML = content;
-        text.setAttribute("x", x.toString());
-        text.setAttribute("y", y.toString());
-        text.setAttribute("font-size", fontSize.toString());
-        text.setAttribute("text-anchor", textAnchor);
-        text.setAttribute("dominant-baseline", "middle");
+        const group = document.createElementNS(svgNamespace, "g");
+        for (let [i, textItem] of content.entries()) {
+            const text = document.createElementNS(svgNamespace, "text");
+            text.innerHTML = textItem;
+            text.setAttribute("x", x.toString());
+            text.setAttribute("y", (y + i * fontSize).toString());
+            text.setAttribute("font-size", `${fontSize}`);
+            text.setAttribute("text-anchor", "end");
+            text.setAttribute("dominant-baseline", "middle");
 
-        svgElem.appendChild(text);
+            group.appendChild(text);
+        }
+
+        if (axis == "x") {
+            group.setAttribute("transform", `rotate(270, ${x}, ${y})`);
+        }
+
+        svgElem.appendChild(group);
+    }
+
+    getRemInPixels(rem: number): number {
+        const computedStyle = getComputedStyle(document.documentElement);
+        const rootRemPixels = parseFloat(computedStyle.fontSize);
+
+        return rem * rootRemPixels;
     }
 
     /**
@@ -178,6 +237,9 @@ export class Plot {
 type PlotDimensions = {
     barWidth: number;
     barPadding: number;
-    margin: number;
+    marginTop: number;
+    marginRight: number;
+    marginBottom: number;
+    marginLeft: number;
     axisOffset: number;
 };

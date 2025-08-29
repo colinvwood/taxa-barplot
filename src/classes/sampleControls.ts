@@ -1,6 +1,5 @@
 import { Metadata } from "./metadata";
 import { Sample } from "./sample";
-import { ViewTaxon } from "./taxonomy";
 
 export class SampleControls {
     metadata: Metadata;
@@ -12,7 +11,7 @@ export class SampleControls {
         this.metadata = new Metadata();
         this.sorts = [];
         this.filters = [];
-        this.labels = [];
+        this.labels = ["sampleID"];
     }
 
     addMetadataSort(column: string, ascending: boolean) {
@@ -144,6 +143,16 @@ export class SampleControls {
             ...this.labels.slice(0, index),
             ...this.labels.slice(index + 1),
         ];
+    }
+
+    getSampleLabels(sampleId: string): string[] {
+        const sampleLabels: string[] = [];
+        for (let label of this.labels) {
+            const sampleLabel = this.metadata.getColumnValue(label, sampleId);
+            sampleLabels.push(sampleLabel);
+        }
+
+        return sampleLabels;
     }
 
     updateSortOrder(sortNames: string[]) {
