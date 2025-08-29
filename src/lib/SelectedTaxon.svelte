@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { onMount } from "svelte";
     import { sampleManager } from "./../classes/sampleManager";
     import { ViewTaxon } from "./../classes/taxonomy";
 
@@ -39,7 +38,7 @@
 </script>
 
 <div
-    class="flex-none grid rows-auto-min grid-cols-2 gap-2 w-[20rem] border-2 border-blue-300"
+    class="grid rows-auto-min grid-cols-2 gap-2 w-[20rem] border-2 border-blue-300"
 >
     <h1
         class="row-start-1 col-start-1 col-end-4 justify-self-center text-lg font-bold"

@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { onMount } from "svelte";
     import { sampleManager } from "../../classes/sampleManager";
 
     let filters: string[] = $state([]);
