@@ -14,6 +14,7 @@ class SampleManager {
     taxonomy: Taxonomy;
     colors: Colors;
     plot: Plot;
+    eventBus: EventTarget;
 
     constructor() {
         this.samples = [];
@@ -23,6 +24,7 @@ class SampleManager {
         this.taxonomy = new Taxonomy();
         this.colors = new Colors();
         this.plot = new Plot();
+        this.eventBus = new EventTarget();
     }
 
     /**
@@ -112,7 +114,12 @@ class SampleManager {
         }
 
         // draw samples
-        this.plot.drawSamples(this.renderedSamples, this.colors);
+        this.plot.drawSamples(
+            this.renderedSamples,
+            this.colors,
+            this.sampleControls,
+            this.eventBus,
+        );
     }
 }
 

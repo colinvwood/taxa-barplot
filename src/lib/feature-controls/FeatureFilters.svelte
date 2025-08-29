@@ -1,9 +1,14 @@
 <script lang="ts">
+    import { onMount } from "svelte";
     import { sampleManager } from "../../classes/sampleManager";
 
     let filters: string[] = $state([]);
 
     let form = $state({ type: "", operator: "", value: "" });
+
+    sampleManager.eventBus.addEventListener("sync-taxon-filters", (e) => {
+        updateLocalFilters();
+    });
 
     function updateLocalFilters() {
         filters = sampleManager.featureControls.filters.map((f) => f.name);
@@ -47,6 +52,10 @@
             sampleManager.featureControls.removeFilter(name);
 
             updateLocalFilters();
+
+            sampleManager.eventBus.dispatchEvent(
+                new CustomEvent("taxon-filter-removed"),
+            );
 
             sampleManager.render();
         };

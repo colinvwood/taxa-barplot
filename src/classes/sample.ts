@@ -24,6 +24,10 @@ export class Sample {
         for (let feature of this.features) {
             const displayTaxon = taxonomy.getDisplayTaxon(feature.featureID);
 
+            if (displayTaxon == null) {
+                continue;
+            }
+
             if (viewTaxaMap.get(displayTaxon) == null) {
                 const newViewTaxon = new ViewTaxon(displayTaxon);
                 viewTaxaMap.set(displayTaxon, newViewTaxon);
@@ -148,6 +152,7 @@ export class Sample {
         barWidth: number,
         barHeight: number,
         colors: Colors,
+        eventBus: EventTarget,
     ) {
         const svgElem = document.querySelector("#barplot")!;
         const svgNamespace = "http://www.w3.org/2000/svg";
@@ -165,7 +170,12 @@ export class Sample {
             const color = colors.getTaxonColor(viewTaxon.taxon, 1);
             rect.setAttribute("fill", color);
 
-            // TODO: register click handler
+            rect.addEventListener("click", () => {
+                const payload = { viewTaxon: viewTaxon };
+                eventBus.dispatchEvent(
+                    new CustomEvent("taxon-selected", { detail: payload }),
+                );
+            });
 
             svgElem.appendChild(rect);
             y0 += rectHeight;

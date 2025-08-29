@@ -1,4 +1,4 @@
-import { ViewTaxon } from "./taxonomy";
+import { Taxon, ViewTaxon } from "./taxonomy";
 
 export class FeatureControls {
     filters: FeatureFilter[];
@@ -18,7 +18,7 @@ export class FeatureControls {
         }
 
         const name = `abundance ${operator} ${value}`;
-        const filter = { name, func };
+        const filter = { name, func, taxon: null };
         this.filters.push(filter);
     }
 
@@ -42,7 +42,14 @@ export class FeatureControls {
         }
 
         const name = `${type}-prevalence-${operator}-${value}`;
-        const filter = { name, func };
+        const filter = { name, func, taxon: null };
+        this.filters.push(filter);
+    }
+
+    addTaxonFilter(taxon: Taxon) {
+        const func = (vt: ViewTaxon) => !vt.taxon.filtered;
+        const name = `${taxon.name}`;
+        const filter = { name, func, taxon };
         this.filters.push(filter);
     }
 
@@ -50,10 +57,15 @@ export class FeatureControls {
         const names = this.filters.map((f) => f.name);
         const index = names.indexOf(name);
 
+        const removedFilter = this.filters[index];
         this.filters = [
             ...this.filters.slice(0, index),
             ...this.filters.slice(index + 1),
         ];
+
+        if (removedFilter.taxon != null) {
+            removedFilter.taxon.filtered = false;
+        }
     }
 
     setSort(
@@ -83,6 +95,7 @@ export class FeatureControls {
 export type FeatureFilter = {
     name: string;
     func: (t: ViewTaxon) => boolean;
+    taxon: Taxon | null;
 };
 export type FeatureSort = {
     name: string;

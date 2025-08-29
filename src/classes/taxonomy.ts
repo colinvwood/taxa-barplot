@@ -102,36 +102,11 @@ export class Taxonomy {
     }
 
     /**
-     *
-     */
-    addCollapseFromDescendant(taxon: Taxon, collapseToLevel: number): boolean {
-        // ensure taxon level is greater than the level to which to collpase
-        const taxonLevel = taxon.getLevel();
-        if (taxonLevel <= collapseToLevel) {
-            alert("Collapse from-level must be greater than to-level.");
-            return false;
-        }
-
-        const ancestor = taxon.getAncestorAtLevel(collapseToLevel);
-
-        // scan sub tree to ensure no other expand/collapse
-        if (!this.isSubTreeClear(ancestor, taxonLevel)) {
-            alert("An expansion or collapse was detected in the subtree.");
-            return false;
-        }
-
-        ancestor.collapseFrom = taxonLevel;
-
-        // todo: update data structure tracking expansions & collapses
-
-        return true;
-    }
-
-    /**
      * For a given feature ID find the taxon at which it is displayed, taking
-     * into account display level, expansions, and collapses.
+     * into account display level, expansions, and collapses. Returns null
+     * if the taxon is filtered.
      */
-    getDisplayTaxon(featureID: string): Taxon {
+    getDisplayTaxon(featureID: string): Taxon | null {
         // find taxon by feature ID
         const featureTaxon = this.findTaxonByFeatureID(featureID);
         const featureTaxonLevel = featureTaxon.getLevel();
@@ -146,25 +121,9 @@ export class Taxonomy {
 
         // follow expansion if present
         if (taxon.expandTo != null) {
-            if (taxon.expandTo >= featureTaxonLevel) {
-                return featureTaxon;
+            if (taxon.expandTo <= featureTaxonLevel) {
+                taxon = featureTaxon.getAncestorAtLevel(taxon.expandTo);
             }
-            return featureTaxon.getAncestorAtLevel(taxon.expandTo);
-        }
-
-        // follow collapse if present
-        const ancestors = taxon.getAncestors();
-        const collapsedAncestors = ancestors.filter((a) => {
-            return (
-                a.collapseFrom != null && a.collapseFrom >= this.displayLevel
-            );
-        });
-
-        if (collapsedAncestors.length > 1) {
-            throw new Error("Expected at most one valid collapse ancestor.");
-        }
-        if (collapsedAncestors.length == 1) {
-            return collapsedAncestors[0];
         }
 
         return taxon;
@@ -235,20 +194,16 @@ export class Taxon {
     name: string;
     parent: Taxon | null;
     children: Taxon[];
-
-    selected: boolean;
+    filtered: boolean;
     expandTo: number | null;
-    collapseFrom: number | null;
-
     featureIDs: string[];
 
     constructor(name: string, parent: Taxon | null) {
         this.name = name;
         this.parent = parent;
         this.children = [];
-        this.selected = false;
+        this.filtered = false;
         this.expandTo = null;
-        this.collapseFrom = null;
         this.featureIDs = [];
     }
 
