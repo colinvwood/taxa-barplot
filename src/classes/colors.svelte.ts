@@ -1,9 +1,10 @@
 import { csv } from "d3-fetch";
-import { Taxon } from "./taxonomy";
+import { Taxon } from "./taxonomy.svelte";
+import { SvelteMap } from "svelte/reactivity";
 
 export class Colors {
     colorSchemes: Map<string, string[]>;
-    colorScheme: string[];
+    colorScheme: string;
     schemeIndex: number;
     colorLevel: number;
     customColors: Map<Taxon, string>;
@@ -12,10 +13,10 @@ export class Colors {
 
     constructor() {
         this.colorSchemes = new Map();
-        this.colorScheme = [];
+        this.colorScheme = $state("before-dawn");
         this.schemeIndex = 0;
         this.colorLevel = 0;
-        this.customColors = new Map();
+        this.customColors = $state(new SvelteMap());
         this.assignedColors = new Map();
         this.previousColor = "";
     }
@@ -30,29 +31,30 @@ export class Colors {
         }
     }
 
-    /**
-     *
-     */
-    setColorScheme(schemeName: string) {
-        if (!this.colorSchemes.has(schemeName)) {
-            throw new Error(`The ${schemeName} color scheme does not exist.`);
-        }
-
-        this.colorScheme = this.colorSchemes.get(schemeName)!;
+    getColorSchemeNames(): string[] {
+        return [...this.colorSchemes.keys()];
     }
 
-    /**
-     *
-     */
+    setColorScheme(colorScheme: string) {
+        if (!this.colorSchemes.has(colorScheme)) {
+            throw new Error(`The ${colorScheme} color scheme does not exist.`);
+        }
+
+        this.colorScheme = colorScheme;
+    }
+
     addCustomColor(taxon: Taxon, color: string) {
         this.customColors.set(taxon, color);
     }
 
-    /**
-     *
-     */
     removeCustomColor(taxon: Taxon) {
         this.customColors.delete(taxon);
+    }
+
+    reset() {
+        this.assignedColors = new Map();
+        this.schemeIndex = 0;
+        this.previousColor = "";
     }
 
     /**
@@ -60,17 +62,19 @@ export class Colors {
      * higher-level coloring. Higher-level coloring refers to coloring all taxa
      * in the same clade different shades of a central color.
      */
-    getTaxonColor(taxon: Taxon, displayLevel: number): string {
+    colorTaxon(taxon: Taxon, displayLevel: number): string {
         let color: string;
         const customColor = this.customColors.get(taxon);
         const assignedColor = this.assignedColors.get(taxon);
 
         if (customColor) {
             color = customColor;
+            this.incrementSchemeIndex();
         } else if (assignedColor) {
             color = assignedColor;
         } else {
             color = this.getNextColor();
+
             if (color == this.previousColor) {
                 color = this.getNextColor();
             }
@@ -83,12 +87,32 @@ export class Colors {
         return color;
     }
 
-    /**
-     *
-     */
+    getTaxonColor(taxon: Taxon) {
+        const customColor = this.customColors.get(taxon);
+        const assignedColor = this.assignedColors.get(taxon);
+
+        if (customColor) {
+            return customColor;
+        } else if (assignedColor) {
+            return assignedColor;
+        } else {
+            return null;
+        }
+    }
+
+    private incrementSchemeIndex() {
+        const schemeValues = this.colorSchemes.get(this.colorScheme)!;
+
+        this.schemeIndex++;
+        if (this.schemeIndex == schemeValues.length) {
+            this.schemeIndex = 0;
+        }
+    }
+
     private getNextColor(): string {
-        const color = this.colorScheme[this.schemeIndex];
-        this.schemeIndex = ++this.schemeIndex % this.colorScheme.length;
+        const schemeValues = this.colorSchemes.get(this.colorScheme)!;
+        const color = schemeValues[this.schemeIndex];
+        this.incrementSchemeIndex();
 
         return color;
     }

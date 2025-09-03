@@ -1,11 +1,11 @@
-import { Taxon, ViewTaxon } from "./taxonomy";
+import { Taxon, ViewTaxon } from "./taxonomy.svelte";
 
 export class FeatureControls {
     filters: FeatureFilter[];
     sort: FeatureSort;
 
     constructor() {
-        this.filters = [];
+        this.filters = $state([]);
         this.sort = this.setSort("mean relative abundance", false);
     }
 

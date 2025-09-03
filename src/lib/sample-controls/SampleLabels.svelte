@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { sampleManager } from "../../classes/sampleManager";
+    import { sampleManager } from "../../classes/sampleManager.svelte";
 
     let labels: string[] = $state(sampleManager.sampleControls.labels);
     let formLabel: string = $state("");

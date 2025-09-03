@@ -1,6 +1,6 @@
-import { Taxonomy, Taxon, Feature, ViewTaxon } from "./taxonomy";
-import { Colors } from "./colors";
-import type { FeatureFilter, FeatureSort } from "./featureControls";
+import { Taxonomy, Taxon, Feature, ViewTaxon } from "./taxonomy.svelte";
+import { Colors } from "./colors.svelte";
+import type { FeatureFilter, FeatureSort } from "./featureControls.svelte";
 
 export class Sample {
     sampleID: string;
@@ -157,6 +157,7 @@ export class Sample {
         const svgElem = document.querySelector("#barplot")!;
         const svgNamespace = "http://www.w3.org/2000/svg";
 
+        let i = 0;
         for (let viewTaxon of this.viewTaxa) {
             // create and append rect
             const rectHeight = viewTaxon.relAbun * barHeight;
@@ -166,9 +167,8 @@ export class Sample {
             rect.setAttribute("width", barWidth.toString());
             rect.setAttribute("height", rectHeight.toString());
 
-            // get rect's color
-            const color = colors.getTaxonColor(viewTaxon.taxon, 1);
-            rect.setAttribute("fill", color);
+            viewTaxon.taxon.color = colors.colorTaxon(viewTaxon.taxon, 1);
+            rect.setAttribute("fill", viewTaxon.taxon.color);
 
             rect.addEventListener("click", () => {
                 const payload = { viewTaxon: viewTaxon };

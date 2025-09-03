@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { sampleManager } from "../../classes/sampleManager";
+    import { sampleManager } from "../../classes/sampleManager.svelte";
 
     let sorts = ["mean relative abundance", "prevalence"];
     let directions = ["ascending", "descending"];

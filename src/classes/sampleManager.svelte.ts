@@ -1,12 +1,12 @@
 import { csv } from "d3-fetch";
-import { Taxonomy, Taxon, ViewTaxon, Feature } from "./taxonomy";
+import { Taxonomy, Taxon, ViewTaxon, Feature } from "./taxonomy.svelte";
 import { Sample } from "./sample";
 import { SampleControls } from "./sampleControls";
-import { FeatureControls } from "./featureControls";
-import { Colors } from "./colors";
+import { FeatureControls } from "./featureControls.svelte";
+import { Colors } from "./colors.svelte";
 import { Plot } from "./plot";
 
-class SampleManager {
+export class SampleManager {
     samples: Sample[];
     renderedSamples: Sample[];
     sampleControls: SampleControls;
@@ -15,6 +15,7 @@ class SampleManager {
     colors: Colors;
     plot: Plot;
     eventBus: EventTarget;
+    selectedTaxon: ViewTaxon | null;
 
     constructor() {
         this.samples = [];
@@ -25,6 +26,7 @@ class SampleManager {
         this.colors = new Colors();
         this.plot = new Plot();
         this.eventBus = new EventTarget();
+        this.selectedTaxon = $state(null);
     }
 
     /**
@@ -88,6 +90,14 @@ class SampleManager {
         return [...allViewTaxa];
     }
 
+    syncSelectedTaxon() {
+        if (this.selectedTaxon.viewTaxon != null) {
+            this.selectedTaxon.color = this.colors.getTaxonColor(
+                this.selectedTaxon.viewTaxon.taxon,
+            )!;
+        }
+    }
+
     /**
      * Performs an entire render cycle of the barplot, including calculating
      * the set of view taxa, calculating stats for each view taxon, sample
@@ -114,6 +124,8 @@ class SampleManager {
         }
 
         // draw samples
+        this.colors.reset();
+
         this.plot.drawSamples(
             this.renderedSamples,
             this.colors,

@@ -1,17 +1,7 @@
 <script lang="ts">
-    import { sampleManager } from "../../classes/sampleManager";
-
-    let filters: string[] = $state([]);
+    import { sampleManager } from "../../classes/sampleManager.svelte";
 
     let form = $state({ type: "", operator: "", value: "" });
-
-    sampleManager.eventBus.addEventListener("sync-taxon-filters", (e) => {
-        updateLocalFilters();
-    });
-
-    function updateLocalFilters() {
-        filters = sampleManager.featureControls.filters.map((f) => f.name);
-    }
 
     function handleAddFilter(event: Event) {
         if (isNaN(Number(form.value))) {
@@ -41,20 +31,12 @@
 
         form = { type: "", value: "", operator: "" };
 
-        updateLocalFilters();
-
         sampleManager.render();
     }
 
     function handleRemoveFilter(name: string) {
         return (event: Event) => {
             sampleManager.featureControls.removeFilter(name);
-
-            updateLocalFilters();
-
-            sampleManager.eventBus.dispatchEvent(
-                new CustomEvent("taxon-filter-removed"),
-            );
 
             sampleManager.render();
         };
@@ -119,16 +101,16 @@
     <div
         class="row-start-7 row-end-11 col-start-1 col-end-4 w-[20rem] h-[10rem] justify-self-center bg-gray-50 border-2 border-gray-300 rounded-sm overflow-scroll"
     >
-        {#each filters as filter}
+        {#each sampleManager.featureControls.filters as filter}
             <div
                 class="flex justify-between items-center mx-2 mt-1 p-2 min-h-8 bg-white border-2 border-gray-300 rounded-lg"
             >
                 <p class="text-sm">
-                    {filter}
+                    {filter.name}
                 </p>
                 <button
                     class="bg-red-400 rounded-lg w-6 h-6 hover:cursor-pointer"
-                    onclick={handleRemoveFilter(filter)}>X</button
+                    onclick={handleRemoveFilter(filter.name)}>X</button
                 >
             </div>
         {/each}

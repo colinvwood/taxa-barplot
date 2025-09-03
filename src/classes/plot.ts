@@ -1,5 +1,5 @@
 import { Sample } from "./sample";
-import { Colors } from "./colors";
+import { Colors } from "./colors.svelte";
 import { SampleControls } from "./sampleControls";
 
 export class Plot {

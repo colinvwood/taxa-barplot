@@ -1,6 +1,6 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.0.6 Chrome/138.0.7204.100 Electron/37.2.3 Safari/537.36" version="28.0.6">
   <diagram name="Page-1" id="ScEAED-juJEtONYMeBrp">
-    <mxGraphModel dx="1954" dy="1363" grid="1" gridSize="15" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="2472" dy="1684" grid="1" gridSize="15" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -13,7 +13,7 @@
         <mxCell id="TV5vEVpm7wU5M8RR6qZn-14" value="Taxonomy" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="442.5" y="-7.5" width="405" height="240" as="geometry" />
         </mxCell>
-        <mxCell id="TV5vEVpm7wU5M8RR6qZn-15" value="&lt;div&gt;+ rootTaxon: Taxon&lt;/div&gt;+ displayLevel: number&lt;div&gt;+ filters: function[]&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="TV5vEVpm7wU5M8RR6qZn-14" vertex="1">
+        <mxCell id="TV5vEVpm7wU5M8RR6qZn-15" value="&lt;div&gt;+ rootTaxon: Taxon&lt;/div&gt;&lt;div&gt;+ selectedTaxon: Taxon&lt;/div&gt;+ displayLevel: number&lt;div&gt;+ filters: function[]&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="TV5vEVpm7wU5M8RR6qZn-14" vertex="1">
           <mxGeometry y="26" width="405" height="64" as="geometry" />
         </mxCell>
         <mxCell id="TV5vEVpm7wU5M8RR6qZn-16" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="TV5vEVpm7wU5M8RR6qZn-14" vertex="1">
@@ -83,16 +83,16 @@
           <mxGeometry y="98" width="175" height="32" as="geometry" />
         </mxCell>
         <mxCell id="TV5vEVpm7wU5M8RR6qZn-66" value="ViewTaxon" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="1710" y="212.5" width="195" height="235" as="geometry" />
+          <mxGeometry x="1710" y="212.5" width="195" height="220" as="geometry" />
         </mxCell>
-        <mxCell id="TV5vEVpm7wU5M8RR6qZn-67" value="&lt;div&gt;+ abundance: number&lt;/div&gt;+ relAbun: number&lt;div&gt;+ meanRelAbun: number&lt;br&gt;&lt;div&gt;+ preval: number&lt;/div&gt;&lt;div&gt;+ prevalProp: number&lt;/div&gt;&lt;div&gt;+ taxon: Taxon&lt;/div&gt;&lt;div&gt;+ features: Feature[]&lt;/div&gt;&lt;div&gt;+ collapsed: boolean&lt;/div&gt;&lt;div&gt;+ expanded: boolean&lt;/div&gt;&lt;div&gt;+ color: string&lt;/div&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="TV5vEVpm7wU5M8RR6qZn-66" vertex="1">
-          <mxGeometry y="26" width="195" height="169" as="geometry" />
+        <mxCell id="TV5vEVpm7wU5M8RR6qZn-67" value="&lt;div&gt;+ abundance: number&lt;/div&gt;+ relAbun: number&lt;div&gt;+ meanRelAbun: number&lt;br&gt;&lt;div&gt;+ preval: number&lt;/div&gt;&lt;div&gt;+ prevalProp: number&lt;/div&gt;&lt;div&gt;+ taxon: Taxon&lt;/div&gt;&lt;div&gt;+ features: Feature[]&lt;/div&gt;&lt;div&gt;+ collapsed: boolean&lt;/div&gt;&lt;div&gt;+ expanded: boolean&lt;/div&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="TV5vEVpm7wU5M8RR6qZn-66" vertex="1">
+          <mxGeometry y="26" width="195" height="154" as="geometry" />
         </mxCell>
         <mxCell id="TV5vEVpm7wU5M8RR6qZn-68" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="TV5vEVpm7wU5M8RR6qZn-66" vertex="1">
-          <mxGeometry y="195" width="195" height="8" as="geometry" />
+          <mxGeometry y="180" width="195" height="8" as="geometry" />
         </mxCell>
         <mxCell id="TV5vEVpm7wU5M8RR6qZn-69" value="+&amp;nbsp;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="TV5vEVpm7wU5M8RR6qZn-66" vertex="1">
-          <mxGeometry y="203" width="195" height="32" as="geometry" />
+          <mxGeometry y="188" width="195" height="32" as="geometry" />
         </mxCell>
         <mxCell id="TV5vEVpm7wU5M8RR6qZn-80" value="Metadata" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="697.5" y="1230" width="450" height="195" as="geometry" />
@@ -144,16 +144,16 @@
           <mxGeometry y="158" width="345" height="112" as="geometry" />
         </mxCell>
         <mxCell id="wJ2dDoDA1lTtDm8QEG7H-15" value="Taxon" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="60" y="-30" width="285" height="285" as="geometry" />
+          <mxGeometry x="60" y="-22.5" width="285" height="270" as="geometry" />
         </mxCell>
-        <mxCell id="wJ2dDoDA1lTtDm8QEG7H-16" value="+ name: string&lt;div&gt;+ parent: Taxon&lt;/div&gt;&lt;div&gt;+ children: Taxon[]&lt;/div&gt;&lt;div&gt;+ expandTo: number&lt;/div&gt;&lt;div&gt;+ collapseFrom: number&lt;/div&gt;&lt;div&gt;+ featureIDs: string[]&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="wJ2dDoDA1lTtDm8QEG7H-15" vertex="1">
-          <mxGeometry y="26" width="285" height="124" as="geometry" />
+        <mxCell id="wJ2dDoDA1lTtDm8QEG7H-16" value="+ name: string&lt;div&gt;+ parent: Taxon&lt;/div&gt;&lt;div&gt;+ children: Taxon[]&lt;/div&gt;&lt;div&gt;+ filtered: boolean&lt;/div&gt;&lt;div&gt;+ expandTo: number&lt;/div&gt;&lt;div&gt;+ color: string&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;+ featureIDs: string[]&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="wJ2dDoDA1lTtDm8QEG7H-15" vertex="1">
+          <mxGeometry y="26" width="285" height="109" as="geometry" />
         </mxCell>
         <mxCell id="wJ2dDoDA1lTtDm8QEG7H-17" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="wJ2dDoDA1lTtDm8QEG7H-15" vertex="1">
-          <mxGeometry y="150" width="285" height="8" as="geometry" />
+          <mxGeometry y="135" width="285" height="8" as="geometry" />
         </mxCell>
         <mxCell id="wJ2dDoDA1lTtDm8QEG7H-18" value="+ getLevel(): number&lt;div&gt;+ getDescendants: Taxon[]&lt;/div&gt;&lt;div&gt;+ getDescendantsAtLevel(level: number): Taxon[]&lt;/div&gt;&lt;div&gt;+ getAncestors(): Taxon[]&lt;/div&gt;&lt;div&gt;+ getAncestorAtLevel(level: number): Taxon&lt;/div&gt;&lt;div&gt;+ getFullTaxonomicString(): string&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="wJ2dDoDA1lTtDm8QEG7H-15" vertex="1">
-          <mxGeometry y="158" width="285" height="127" as="geometry" />
+          <mxGeometry y="143" width="285" height="127" as="geometry" />
         </mxCell>
         <mxCell id="DhHdUdaV4RNOnqThCck2-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=0;" parent="1" source="DhHdUdaV4RNOnqThCck2-1" target="TV5vEVpm7wU5M8RR6qZn-80" edge="1">
           <mxGeometry relative="1" as="geometry" />

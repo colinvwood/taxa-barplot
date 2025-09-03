@@ -196,14 +196,16 @@ export class Taxon {
     children: Taxon[];
     filtered: boolean;
     expandTo: number | null;
+    color: string;
     featureIDs: string[];
 
     constructor(name: string, parent: Taxon | null) {
         this.name = name;
         this.parent = parent;
         this.children = [];
-        this.filtered = false;
+        this.filtered = $state(false);
         this.expandTo = null;
+        this.color = $state("");
         this.featureIDs = [];
     }
 
@@ -301,7 +303,6 @@ export class ViewTaxon {
     prevalProp: number;
     collapsed: boolean;
     expanded: boolean;
-    color: string;
 
     constructor(taxon: Taxon) {
         this.taxon = taxon;
@@ -313,7 +314,6 @@ export class ViewTaxon {
         this.prevalProp = -1;
         this.collapsed = false;
         this.expanded = false;
-        this.color = "";
     }
 }
 

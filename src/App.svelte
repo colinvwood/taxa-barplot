@@ -6,7 +6,8 @@
     import FeatureFilters from "./lib/feature-controls/FeatureFilters.svelte";
     import FeatureSort from "./lib/feature-controls/FeatureSort.svelte";
     import SelectedTaxon from "./lib/SelectedTaxon.svelte";
-    import { sampleManager } from "./classes/sampleManager";
+    import ColorControls from "./lib/ColorControls.svelte";
+    import { sampleManager } from "./classes/sampleManager.svelte";
 
     const smPromise = sampleManager.parseFeatureTable("table.csv");
 
@@ -32,6 +33,7 @@
             <SampleFilters />
             <SampleLabels />
             <SelectedTaxon />
+            <ColorControls />
         </div>
     </div>
 {:catch error}
