@@ -49,6 +49,15 @@ export class Plot {
     ) {
         // clear <svg> content
         const svgElem = document.querySelector("#barplot")!;
+        const rectElems = document.querySelectorAll(".taxonRect");
+        if (rectElems.length > 0) {
+            for (let rectElem of rectElems) {
+                const r = rectElem as SVGRectElement;
+                requestAnimationFrame(() => (r.style.opacity = "0"));
+            }
+            await new Promise((r) => setTimeout(r, 800));
+        }
+
         svgElem.innerHTML = "";
 
         // resize svg
@@ -60,8 +69,6 @@ export class Plot {
 
         // draw each sample
         for (let [index, sample] of samples.entries()) {
-            await new Promise((r) => setTimeout(r, 6));
-
             const x0 = this.dims.marginLeft + index * this.dims.barWidth;
             const y0 = this.dims.marginTop;
             sample.draw(

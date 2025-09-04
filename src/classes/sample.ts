@@ -166,6 +166,7 @@ export class Sample {
             rect.setAttribute("y", y0.toString());
             rect.setAttribute("width", barWidth.toString());
             rect.setAttribute("height", rectHeight.toString());
+            rect.setAttribute("class", "taxonRect");
 
             viewTaxon.taxon.color = colors.colorTaxon(viewTaxon.taxon, 1);
             rect.setAttribute("fill", viewTaxon.taxon.color);
@@ -177,7 +178,10 @@ export class Sample {
                 );
             });
 
+            rect.style.opacity = "0";
             svgElem.appendChild(rect);
+            requestAnimationFrame(() => (rect.style.opacity = "1"));
+
             y0 += rectHeight;
         }
     }
