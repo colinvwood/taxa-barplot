@@ -90,14 +90,6 @@ export class SampleManager {
         return [...allViewTaxa];
     }
 
-    syncSelectedTaxon() {
-        if (this.selectedTaxon.viewTaxon != null) {
-            this.selectedTaxon.color = this.colors.getTaxonColor(
-                this.selectedTaxon.viewTaxon.taxon,
-            )!;
-        }
-    }
-
     /**
      * Performs an entire render cycle of the barplot, including calculating
      * the set of view taxa, calculating stats for each view taxon, sample
