@@ -48,11 +48,17 @@
             <div
                 class="flex justify-between items-center mx-2 mt-1 p-2 min-h-8 bg-white border-2 border-gray-300 rounded-lg"
             >
-                <p class="text-sm">
-                    {taxon.name}
-                </p>
+                <div class="flex flex-around items-center">
+                    <p class="text-sm mr-[0.75rem]">
+                        {taxon.name}
+                    </p>
+                    <span
+                        class="w-[1.5rem] h-[1.5rem] rounded-sm"
+                        style={`background-color: ${color}`}
+                    ></span>
+                </div>
                 <button
-                    class="bg-red-400 rounded-lg w-6 h-6 hover:cursor-pointer"
+                    class="bg-red-400 justify-self-end rounded-md w-[1.5rem] h-[1.5rem] hover:cursor-pointer"
                     onclick={handleRemoveColor(taxon)}>X</button
                 >
             </div>
