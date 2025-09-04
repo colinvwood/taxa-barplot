@@ -4,7 +4,7 @@
 
     let filters: string[] = $state([]);
 
-    let categoricalForm = $state({ column: "", levels: [], keep: false });
+    let categoricalForm = $state({ column: "", levels: [], filter: false });
     let numericForm = $state({ column: "", value: "", operator: "" });
     let taxonForm = $state({ taxonId: "", operator: "", value: "" });
 
@@ -25,7 +25,7 @@
     });
 
     function clearForms() {
-        categoricalForm = { column: "", levels: [], keep: false };
+        categoricalForm = { column: "", levels: [], filter: false };
         numericForm = { column: "", value: "", operator: ">" };
         taxonForm = { taxonId: "", operator: "", value: "" };
     }
@@ -38,7 +38,7 @@
         sampleManager.sampleControls.addCategoricalMetadataFilter(
             categoricalForm.column,
             categoricalForm.levels,
-            categoricalForm.keep,
+            !categoricalForm.filter,
         );
 
         clearForms();
@@ -154,7 +154,7 @@
             type="checkbox"
             value=""
             class="sr-only peer"
-            bind:checked={categoricalForm.keep}
+            bind:checked={categoricalForm.filter}
         />
         <span class="mr-2 text-sm"> Retain </span>
         <div
