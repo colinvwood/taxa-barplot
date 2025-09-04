@@ -1,15 +1,18 @@
 import { tsv } from "d3-fetch";
 import { Legend } from "./legend";
+import { SvelteSet } from "svelte/reactivity";
 
 export class Taxonomy {
     rootTaxon: Taxon;
     displayLevel: number;
     legend: Legend;
+    expansions: Set<Taxon>;
 
     constructor() {
         this.rootTaxon = new Taxon("placeholder", null);
         this.displayLevel = 1;
         this.legend = new Legend();
+        this.expansions = $state(new SvelteSet());
     }
 
     /**
@@ -70,6 +73,12 @@ export class Taxonomy {
         }
     }
 
+    getDepth(): number {
+        const allTaxa = this.rootTaxon.getDescendants();
+        const levels = allTaxa.map((t) => t.getLevel());
+        return Math.max(...levels);
+    }
+
     /**
      *
      */
@@ -88,9 +97,9 @@ export class Taxonomy {
             return false;
         }
 
-        // scan sub tree to ensure no other expand/collapse
+        // scan sub tree to ensure no other expand
         if (!this.isSubTreeClear(taxon, expandToLevel)) {
-            alert("An expansion or collapse was detected in the subtree.");
+            alert("Another expansion was detected in the subtree.");
             return false;
         }
 
@@ -121,6 +130,7 @@ export class Taxonomy {
 
         // follow expansion if present
         if (taxon.expandTo != null) {
+            console.log("expand to detected");
             if (taxon.expandTo <= featureTaxonLevel) {
                 taxon = featureTaxon.getAncestorAtLevel(taxon.expandTo);
             }
@@ -204,7 +214,7 @@ export class Taxon {
         this.parent = parent;
         this.children = [];
         this.filtered = $state(false);
-        this.expandTo = null;
+        this.expandTo = $state(null);
         this.color = $state("");
         this.featureIDs = [];
     }
