@@ -151,17 +151,24 @@ export class Sample {
         y0: number,
         barWidth: number,
         barHeight: number,
+        heightAdjustor: number,
         colors: Colors,
         eventBus: EventTarget,
     ) {
         const svgElem = document.querySelector("#barplot")!;
         const svgNamespace = "http://www.w3.org/2000/svg";
 
+        // draw from bottom
+        const viewTaxaReversed = this.viewTaxa.slice().reverse();
+
         let i = 0;
-        for (let viewTaxon of this.viewTaxa) {
+        for (let viewTaxon of viewTaxaReversed) {
             // create and append rect
-            const rectHeight = viewTaxon.relAbun * barHeight;
             const rect = document.createElementNS(svgNamespace, "rect");
+
+            const rectHeight = (viewTaxon.relAbun * barHeight) / heightAdjustor;
+            y0 = y0 - rectHeight;
+
             rect.setAttribute("x", x0.toString());
             rect.setAttribute("y", y0.toString());
             rect.setAttribute("width", barWidth.toString());
@@ -181,8 +188,6 @@ export class Sample {
             rect.style.opacity = "0";
             svgElem.appendChild(rect);
             requestAnimationFrame(() => (rect.style.opacity = "1"));
-
-            y0 += rectHeight;
         }
     }
 }

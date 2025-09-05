@@ -28,16 +28,6 @@ export class Plot {
         return rect.height - this.dims.marginTop - this.dims.marginBottom;
     }
 
-    getYAxisTickInterval(yAxisMax: number): number {
-        let quotient = 0;
-        let tickInterval = 0.1;
-        while (Math.floor(1 / tickInterval) < 10) {
-            tickInterval = tickInterval / 2;
-        }
-
-        return tickInterval;
-    }
-
     /**
      *
      */
@@ -67,15 +57,27 @@ export class Plot {
             samples.length * this.dims.barWidth;
         svgElem.setAttribute("width", width.toString());
 
+        // find axis scaler
+        const relAbunSums: number[] = samples.map((s) => s.getRelAbunSum());
+        const maxRelAbunSum = Math.max(...relAbunSums);
+
+        let heightAdjustor: number;
+        if (this.dynamicAxis) {
+            heightAdjustor = maxRelAbunSum;
+        } else {
+            heightAdjustor = 1;
+        }
+
         // draw each sample
         for (let [index, sample] of samples.entries()) {
             const x0 = this.dims.marginLeft + index * this.dims.barWidth;
-            const y0 = this.dims.marginTop;
+            const y0 = this.dims.marginTop + this.getPlotHeight();
             sample.draw(
                 x0,
                 y0,
                 this.dims.barWidth - this.dims.barPadding,
                 this.getPlotHeight(),
+                heightAdjustor,
                 colors,
                 eventBus,
             );
@@ -105,18 +107,26 @@ export class Plot {
         const maxRelAbunSum = Math.max(...relAbunSums);
 
         let tickInterval: number;
+        let numTicks: number;
         if (this.dynamicAxis) {
             tickInterval = this.getYAxisTickInterval(maxRelAbunSum);
+            numTicks = Math.floor(maxRelAbunSum / tickInterval);
         } else {
             tickInterval = 0.1;
+            numTicks = 10;
         }
 
-        let numTicks = Math.floor(maxRelAbunSum / tickInterval);
         let yPosition;
         while (numTicks >= 0) {
             const tickValue = Number((numTicks * tickInterval).toFixed(3));
-            yPosition =
-                this.dims.marginTop + (plotHeight - tickValue * plotHeight);
+            if (this.dynamicAxis) {
+                yPosition =
+                    this.dims.marginTop +
+                    (plotHeight - (tickValue * plotHeight) / maxRelAbunSum);
+            } else {
+                yPosition =
+                    this.dims.marginTop + (plotHeight - tickValue * plotHeight);
+            }
 
             // tick
             this.drawSvgLine(
@@ -137,6 +147,15 @@ export class Plot {
 
             numTicks--;
         }
+    }
+
+    getYAxisTickInterval(yAxisMax: number): number {
+        let tickInterval = 0.1;
+        while (Math.floor(yAxisMax / tickInterval) < 10) {
+            tickInterval = tickInterval / 2;
+        }
+
+        return tickInterval;
     }
 
     drawXAxis(samples: Sample[], sampleControls: SampleControls) {
