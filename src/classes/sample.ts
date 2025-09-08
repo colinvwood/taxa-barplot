@@ -1,6 +1,7 @@
 import { Taxonomy, Taxon, Feature, ViewTaxon } from "./taxonomy.svelte";
 import { Colors } from "./colors.svelte";
 import type { FeatureFilter, FeatureSort } from "./featureControls.svelte";
+import { type SampleManager } from "./sampleManager.svelte";
 
 export class Sample {
     sampleID: string;
@@ -152,42 +153,76 @@ export class Sample {
         barWidth: number,
         barHeight: number,
         heightAdjustor: number,
-        colors: Colors,
-        eventBus: EventTarget,
+        sampleManager: SampleManager,
     ) {
-        const svgElem = document.querySelector("#barplot")!;
-        const svgNamespace = "http://www.w3.org/2000/svg";
-
         // draw from bottom
         const viewTaxaReversed = this.viewTaxa.slice().reverse();
 
         let i = 0;
+        let sumAbun = 0;
         for (let viewTaxon of viewTaxaReversed) {
             // create and append rect
-            const rect = document.createElementNS(svgNamespace, "rect");
-
             const rectHeight = (viewTaxon.relAbun * barHeight) / heightAdjustor;
             y0 = y0 - rectHeight;
 
-            rect.setAttribute("x", x0.toString());
-            rect.setAttribute("y", y0.toString());
-            rect.setAttribute("width", barWidth.toString());
-            rect.setAttribute("height", rectHeight.toString());
-            rect.setAttribute("class", "taxonRect");
+            this.drawRect(
+                viewTaxon,
+                x0,
+                y0,
+                barWidth,
+                rectHeight,
+                sampleManager,
+            );
 
-            viewTaxon.taxon.color = colors.colorTaxon(viewTaxon.taxon, 1);
+            sumAbun += viewTaxon.relAbun;
+        }
+
+        if (sampleManager.plot.showFiltered && sumAbun != 1) {
+            const rectHeight = ((1 - sumAbun) * barHeight) / heightAdjustor;
+            y0 = y0 - rectHeight;
+            this.drawRect(null, x0, y0, barWidth, rectHeight, sampleManager);
+        }
+    }
+
+    drawRect(
+        viewTaxon: ViewTaxon | null,
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+        sampleManager: SampleManager,
+    ) {
+        const svgElem = document.querySelector("#barplot")!;
+        const svgNamespace = "http://www.w3.org/2000/svg";
+
+        const rect = document.createElementNS(svgNamespace, "rect");
+
+        rect.setAttribute("x", x.toString());
+        rect.setAttribute("y", y.toString());
+        rect.setAttribute("width", width.toString());
+        rect.setAttribute("height", height.toString());
+        rect.setAttribute("class", "taxonRect");
+
+        if (viewTaxon != null) {
+            viewTaxon.taxon.color = sampleManager.colors.colorTaxon(
+                viewTaxon.taxon,
+                1,
+            );
             rect.setAttribute("fill", viewTaxon.taxon.color);
 
             rect.addEventListener("click", () => {
                 const payload = { viewTaxon: viewTaxon };
-                eventBus.dispatchEvent(
+                sampleManager.eventBus.dispatchEvent(
                     new CustomEvent("taxon-selected", { detail: payload }),
                 );
             });
-
-            rect.style.opacity = "0";
-            svgElem.appendChild(rect);
-            requestAnimationFrame(() => (rect.style.opacity = "1"));
+        } else {
+            // filtered rect
+            rect.setAttribute("fill", "#adadad");
         }
+
+        rect.style.opacity = "0";
+        svgElem.appendChild(rect);
+        requestAnimationFrame(() => (rect.style.opacity = "1"));
     }
 }

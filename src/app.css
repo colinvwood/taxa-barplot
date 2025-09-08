@@ -11,7 +11,7 @@
     @apply bg-blue-100 border-2 border-gray-200 rounded-lg;
     @apply hover:bg-blue-50 hover:cursor-pointer;
     @apply text-gray-900 text-sm;
-    @apply h-8 px-3 py-1;
+    @apply h-[2rem] px-2 py-1;
 }
 
 .input-primary {
@@ -27,7 +27,7 @@
 
 rect {
     transition-property: opacity;
-    /* keep transition-duration in sync with timeout in Plot.drawSamples */
+    /* keep transition-duration in sync with timeout in Plot.drawSamples() */
     transition-duration: 800ms;
     transition-timing-function: ease;
 }

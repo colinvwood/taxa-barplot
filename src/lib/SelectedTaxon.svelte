@@ -91,7 +91,7 @@
     class="grid rows-auto-min grid-cols-2 gap-2 w-[26rem] border-2 border-blue-300 py-[1rem]"
 >
     <h1
-        class="row-start-1 col-start-1 col-end-4 justify-self-center text-lg font-bold"
+        class="row-start-1 col-start-1 col-end-3 justify-self-center text-lg font-bold"
     >
         Selected Taxon
     </h1>

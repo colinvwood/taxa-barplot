@@ -3,7 +3,6 @@
     import { sampleManager } from "../classes/sampleManager.svelte";
 
     onMount(() => {
-        sampleManager.taxonomy.setDisplayLevel(6);
         sampleManager.render();
     });
 </script>

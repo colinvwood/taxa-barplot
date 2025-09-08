@@ -1,15 +1,15 @@
 import { Sample } from "./sample";
-import { Colors } from "./colors.svelte";
 import { SampleControls } from "./sampleControls";
+import { type SampleManager } from "./sampleManager.svelte";
 
 export class Plot {
     dims: PlotDimensions;
     dynamicAxis: boolean;
-    filteredGray: boolean;
+    showFiltered: boolean;
 
     constructor() {
         this.dims = {
-            barWidth: 20,
+            barWidth: 25,
             barPadding: 2,
             marginTop: 75,
             marginRight: 50,
@@ -18,7 +18,7 @@ export class Plot {
             axisOffset: 10,
         };
         this.dynamicAxis = false;
-        this.filteredGray = false;
+        this.showFiltered = false;
     }
 
     getPlotHeight(): number {
@@ -31,12 +31,7 @@ export class Plot {
     /**
      *
      */
-    async drawSamples(
-        samples: Sample[],
-        colors: Colors,
-        sampleControls: SampleControls,
-        eventBus: EventTarget,
-    ) {
+    async drawSamples(sampleManager: SampleManager) {
         // clear <svg> content
         const svgElem = document.querySelector("#barplot")!;
         const rectElems = document.querySelectorAll(".taxonRect");
@@ -49,6 +44,8 @@ export class Plot {
         }
 
         svgElem.innerHTML = "";
+
+        const samples = sampleManager.renderedSamples;
 
         // resize svg
         const width =
@@ -78,13 +75,15 @@ export class Plot {
                 this.dims.barWidth - this.dims.barPadding,
                 this.getPlotHeight(),
                 heightAdjustor,
-                colors,
-                eventBus,
+                sampleManager,
             );
         }
 
-        this.drawYAxis(samples);
-        this.drawXAxis(samples, sampleControls);
+        this.drawYAxis(sampleManager.renderedSamples);
+        this.drawXAxis(
+            sampleManager.renderedSamples,
+            sampleManager.sampleControls,
+        );
     }
 
     /**
@@ -254,10 +253,9 @@ export class Plot {
         return rem * rootRemPixels;
     }
 
-    /**
-     *
-     */
-    exportToFigure() {}
+    exportFigure() {}
+
+    exportCSV() {}
 }
 
 type PlotDimensions = {

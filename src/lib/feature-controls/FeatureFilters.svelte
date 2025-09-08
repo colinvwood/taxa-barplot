@@ -99,7 +99,7 @@
         class="row-start-5 col-start-2 mx-4 button-primary"
         onclick={handleAddFilter}
     >
-        Add Filter
+        Add
     </button>
 
     <p class="row-start-6 col-start-2 justify-self-center widget-subheading">

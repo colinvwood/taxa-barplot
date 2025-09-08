@@ -118,12 +118,7 @@ export class SampleManager {
         // draw samples
         this.colors.reset();
 
-        this.plot.drawSamples(
-            this.renderedSamples,
-            this.colors,
-            this.sampleControls,
-            this.eventBus,
-        );
+        this.plot.drawSamples(this);
     }
 }
 
