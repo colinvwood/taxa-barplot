@@ -253,9 +253,66 @@ export class Plot {
         return rem * rootRemPixels;
     }
 
-    exportFigure() {}
+    downloadSVG() {
+        const svgElem = document.querySelector("#barplot");
 
-    exportCSV() {}
+        const svgData = new XMLSerializer().serializeToString(svgElem as Node);
+        const blob = new Blob([svgData], {
+            type: "image/svg+xml;charset=utf-8",
+        });
+
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "taxa-barplot.svg";
+        a.click();
+
+        URL.revokeObjectURL(url);
+    }
+
+    downloadPNG() {
+        const svgElem = document.querySelector("#barplot");
+        if (svgElem == null) {
+            return;
+        }
+
+        const svgData = new XMLSerializer().serializeToString(svgElem as Node);
+        const svgBlob = new Blob([svgData], {
+            type: "image/svg+xml;charset=utf-8",
+        });
+        const url = URL.createObjectURL(svgBlob);
+
+        const img = new Image();
+        img.onload = () => {
+            const width = (svgElem as SVGSVGElement).width.baseVal.value;
+            const height = (svgElem as SVGSVGElement).height.baseVal.value;
+
+            const canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+
+            const ctx = canvas.getContext("2d")!;
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, width, height);
+            ctx.drawImage(img, 0, 0, width, height);
+
+            canvas.toBlob((blob) => {
+                if (!blob) return;
+                const a = document.createElement("a");
+                a.href = URL.createObjectURL(blob);
+                a.download = "taxa-barplot.png";
+                a.click();
+                URL.revokeObjectURL(a.href);
+            }, "image/png");
+
+            URL.revokeObjectURL(url);
+        };
+
+        img.src = url;
+    }
+
+    downloadCSV() {}
 }
 
 type PlotDimensions = {
