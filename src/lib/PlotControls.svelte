@@ -107,4 +107,19 @@
         bind:checked={showFiltered}
         onchange={handleShowFilteredChange}
     />
+
+    <div class="row-start-6 col-start-1 col-end-4 flex justify-center">
+        <button
+            class="button-primary mr-[0.5rem]"
+            onclick={sampleManager.plot.downloadSVG}
+        >
+            Download SVG
+        </button>
+        <button
+            class="button-primary ml-[0.5rem]"
+            onclick={sampleManager.plot.downloadPNG}
+        >
+            Download PNG
+        </button>
+    </div>
 </div>
