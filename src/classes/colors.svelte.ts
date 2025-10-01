@@ -1,5 +1,6 @@
 import { csv } from "d3-fetch";
-import { Taxon } from "./taxonomy.svelte";
+import { type SampleManager } from "./sampleManager.svelte";
+import { Taxon, ViewTaxon } from "./taxonomy.svelte";
 import { SvelteMap } from "svelte/reactivity";
 
 export class Colors {
@@ -17,7 +18,7 @@ export class Colors {
         this.schemeIndex = 0;
         this.colorLevel = 0;
         this.customColors = $state(new SvelteMap());
-        this.assignedColors = new Map();
+        this.assignedColors = $state(new SvelteMap());
         this.previousColor = "";
     }
 
@@ -52,7 +53,7 @@ export class Colors {
     }
 
     reset() {
-        this.assignedColors = new Map();
+        this.assignedColors.clear();
         this.schemeIndex = 0;
         this.previousColor = "";
     }
@@ -115,5 +116,41 @@ export class Colors {
         this.incrementSchemeIndex();
 
         return color;
+    }
+
+    getLegendData(
+        sampleManager: SampleManager,
+        assignedColors: Map<Taxon, string>,
+        customColors: Map<Taxon, string>,
+    ): [ViewTaxon, string][] {
+        let legendRecords: any = [
+            ...assignedColors.entries(),
+            ...customColors.entries(),
+        ];
+
+        const allViewTaxa = sampleManager.getAllViewTaxa();
+
+        const getViewTaxon = (taxon: Taxon) => {
+            const matchingViewTaxa = allViewTaxa.filter(
+                (vt) => vt.taxon == taxon,
+            );
+            if (matchingViewTaxa.length == 0) {
+                throw new Error(`No matching view taxa found for ${taxon}.`);
+            }
+            return matchingViewTaxa[0];
+        };
+
+        legendRecords = legendRecords.map((legendRecord: [Taxon, string]) => {
+            return [getViewTaxon(legendRecord[0]), legendRecord[1]];
+        });
+
+        // sort legend records be decreasing mean relative abundance
+        legendRecords = legendRecords.sort(
+            (a: [ViewTaxon, string], b: [ViewTaxon, string]) => {
+                return b[0].meanRelAbun - a[0].meanRelAbun;
+            },
+        );
+
+        return legendRecords;
     }
 }

@@ -1,6 +1,7 @@
 <script lang="ts">
     import Plot from "./lib/Plot.svelte";
     import PlotControls from "./lib/PlotControls.svelte";
+    import Legend from "./lib/Legend.svelte";
     import FeatureSort from "./lib/feature-controls/FeatureSort.svelte";
     import FeatureFilters from "./lib/feature-controls/FeatureFilters.svelte";
     import SampleSorts from "./lib/sample-controls/SampleSorts.svelte";
@@ -29,6 +30,7 @@
         <Plot />
         <div class="flex flex-row flex-wrap justify-start items-start">
             <PlotControls />
+            <Legend />
             <FeatureSort />
             <FeatureFilters />
             <SampleSorts />
